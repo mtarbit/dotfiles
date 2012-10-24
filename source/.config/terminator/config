@@ -1,0 +1,24 @@
+[global_config]
+  window_state = maximise
+  handle_size = 5
+  borderless = True
+[keybindings]
+  split_horiz = <Ctrl>underscore
+  new_window = <Ctrl><Shift>E
+  split_vert = <Ctrl><Shift>I
+[profiles]
+  [[default]]
+    scrollbar_position = hidden
+    scrollback_infinite = True
+    show_titlebar = False
+    cursor_color = red
+    allow_bold = False
+[layouts]
+  [[default]]
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+    [[[window0]]]
+      type = Window
+      parent = ""
+[plugins]

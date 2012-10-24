@@ -1,0 +1,17 @@
+# Shows all files instead of beep when tab-completing
+set show-all-if-ambiguous on
+
+# Ignore case when completing, very nice!
+set completion-ignore-case on
+
+# Autocomplete doesn't append a slash to directory symlink names by default.
+set mark-symlinked-directories on
+
+# bind '"\e[1;5C": shell-forward-word'
+# bind '"\e[1;5D": shell-backward-word'
+
+# bind '"\C-f": shell-forward-word'
+# bind '"\C-b": shell-backward-word'
+
+# "\e[A": history-search-backward
+# "\e[B": history-search-forward
