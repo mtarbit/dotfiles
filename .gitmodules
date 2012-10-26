@@ -1,0 +1,18 @@
+[submodule "source/.vim/bundle/matchtag"]
+	path = source/.vim/bundle/matchtag
+	url = https://github.com/gregsexton/MatchTag.git
+[submodule "source/.vim/bundle/nerdtree"]
+	path = source/.vim/bundle/nerdtree
+	url = https://github.com/scrooloose/nerdtree.git
+[submodule "source/.vim/bundle/supertab"]
+	path = source/.vim/bundle/supertab
+	url = https://github.com/ervandew/supertab.git
+[submodule "source/.vim/bundle/vim-indent-object"]
+	path = source/.vim/bundle/vim-indent-object
+	url = https://github.com/michaeljsmith/vim-indent-object.git
+[submodule "source/.vim/bundle/vim-powerline"]
+	path = source/.vim/bundle/vim-powerline
+	url = https://github.com/Lokaltog/vim-powerline.git
+[submodule "source/.vim/bundle/vim-zoomwin"]
+	path = source/.vim/bundle/vim-zoomwin
+	url = https://github.com/Kris2k/Zoomwin-vim.git
