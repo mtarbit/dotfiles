@@ -1,11 +1,15 @@
 #!/bin/bash
 
-script_dir="$(dirname "${BASH_SOURCE[0]}")"
-script="$(basename "${BASH_SOURCE[0]}")"
-
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source_dir="$script_dir/source"
 target_dir=$HOME
+
+script="$(basename "${BASH_SOURCE[0]}")"
 manifest='Manifest'
+
+args=("$@")
+
+dryrun=false
 
 red=1
 grn=2
@@ -66,7 +70,7 @@ function install {
 
   echo "Initializing git submodules..."
   if ! $dryrun; then
-    git submodule update --init --recursive
+    git submodule update --quiet --init --recursive
   fi
 
   echo "Done"
@@ -94,9 +98,7 @@ function usage {
   exit 0
 }
 
-args=("$@")
-
-for (( i = $# - 1; i >= 0; i-- )); do
+for (( i = ${#args[@]} - 1; i >= 0; i-- )); do
   case ${args[i]} in
     -d | --dry-run)
       echo "(DRY RUN: No changes will be made)"
