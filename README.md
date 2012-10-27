@@ -3,15 +3,19 @@ Dotfiles
 
 A selection of .file configuration from my home directories. I previously kept this stuff in sync across multiple machines with Dropbox, just trying this out as an alternative.
 
-### Usage
+### Bootstrap usage
 
-If adapting for your own use, add your dotfiles to `/source` and list them in the `Manifest`.
+If adapting for your own use, add dotfiles to `/source` and list them in the `Manifest`.
 
     $ bootstrap.sh --help
     Usage: bootstrap.sh [<command>] [-d|--dry-run]
     Where <command> is 'install', 'uninstall' or 'update'.
 
-The 'install' command creates symlinks in your `$HOME` directory for the paths listed in the Manifest, 'uinstall' removes them, and 'update' is yet to be written.
+### Bootstrap commands
+
+ * __install__  Creates symlinks in your `$HOME` directory for the paths listed in the Manifest, and initializes and updates any git submodules (used here for vim bundles).
+ * __uinstall__ Removes symlinks from your `$HOME` directory for the paths listed in the Manifest.
+ * __update__ Still to be written.
 
 ### Acknowledgments
 
