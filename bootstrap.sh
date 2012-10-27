@@ -89,7 +89,7 @@ function update {
   # - Git fetch and merge or rebase changes.
   # - Add or remove symlinks to match manifest.
   # - Git update submodules.
-  true
+  echo "The update command is not yet implemented."
 }
 
 function usage {
@@ -103,6 +103,9 @@ for (( i = ${#args[@]} - 1; i >= 0; i-- )); do
     -d | --dry-run)
       echo "(DRY RUN: No changes will be made)"
       dryrun=true
+      unset args[i];;
+    -h | --help)
+      usage
       unset args[i];;
     -*)
       echo "Unrecognised option: ${args[i]}"
