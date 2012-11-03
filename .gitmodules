@@ -16,3 +16,4 @@
 [submodule "source/.vim/bundle/vim-zoomwin"]
 	path = source/.vim/bundle/vim-zoomwin
 	url = https://github.com/Kris2k/Zoomwin-vim.git
+	ignore = untracked
