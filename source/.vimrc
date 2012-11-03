@@ -214,6 +214,8 @@ if has('unix')
         let mapleader="`"
         " Copy to system clipboard.
         vnoremap <leader>y :w !pbcopy<cr><cr>
+        " We have a patched font installed for powerline, so we can use fancy symbols.
+        let g:Powerline_symbols = 'fancy'
     endif
 endif
 
@@ -226,20 +228,15 @@ noremap <leader>d :quit<cr>
 noremap <leader>v :vsplit $MYVIMRC<cr>
 noremap <leader>u :source $MYVIMRC<cr>
 
-" Shortcut to toggle showing of invisible characters.
-noremap <leader>l :set list!<cr>
+" Toggle invisible characters.
+noremap <leader>i :set list!<cr>
+" Toggle paste mode.
+noremap <leader>p :set paste!<cr>
 
 " Toggle the NERDTree file browser in a sidebar.
 noremap <leader>e :NERDTreeToggle<cr>
-" Search current dir recursively, jump to first matching file, and list others.
-noremap <leader>a :Ack -Q ''<left>
 " Toggle zooming (temporarily display only the current one of multiple windows).
 noremap <leader>o :ZoomWin<cr>
-" Open vim-fuzzyfinder in file mode.
-noremap <leader>f :FufFile<cr>
-
-" Search and replace word under cursor, asking for confirmation
-noremap <leader>r :%s/\<<c-r><c-w>\>//gc<left><left><left>
 
 " Re-indent, remove trailing whitespace & convert tabs to spaces.
 noremap <leader>t :execute "normal gg=G"<bar>execute "normal ''"<bar>%s/\s\+$//e<bar>retab<cr>
@@ -247,6 +244,22 @@ noremap <leader>t :execute "normal gg=G"<bar>execute "normal ''"<bar>%s/\s\+$//e
 " Quickly switch between two most common white-space set-ups.
 noremap <leader>2 :set ts=2 sts=2 sw=2 expandtab<cr>
 noremap <leader>4 :set ts=4 sts=4 sw=4 expandtab<cr>
+
+noremap <leader>l :call ToggleWrapping()<cr>
+func! ToggleWrapping()
+    let ww = 80
+    if &textwidth != ww
+        let &textwidth = ww
+        let w:long_line_match=matchadd('LongLine', '\%>'.ww.'v.\+', -1)
+    else
+        let &textwidth = 0
+        if exists('w:long_line_match')
+            call matchdelete(w:long_line_match)
+            unlet w:long_line_match
+        endif
+    endif
+    set colorcolumn=+1
+endf
 
 " Toggle between absolute and relative line-numbering.
 noremap <leader>n :call ToggleNumbering()<cr>
@@ -303,9 +316,6 @@ let g:SuperTabCrMapping = 0
 
 " Don't render tag contents with bold, italic & underline in HTML.
 let html_no_rendering=1
-
-" We have a patched font installed for powerline, so we can use fancy symbols.
-" let g:Powerline_symbols = 'fancy'
 
 " Insert Python debug snippet.
 nnoremap <f9> Oimport ipdb; ipdb.set_trace()<esc>

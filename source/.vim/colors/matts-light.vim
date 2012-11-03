@@ -16,6 +16,13 @@ if version >= 700
     " hi PmenuSel   guifg=#000000 guibg=#b1d631 ctermfg=0 ctermbg=148
 endif
 
+" Vim >= 7.3 specific colors
+if version >= 703
+    " See ToggleWrapping in .vimrc:
+    hi ColorColumn ctermbg=254
+    hi LongLine ctermbg=254
+endif
+
 " Chrome colors
 hi Normal       ctermfg=233 ctermbg=15
 hi NonText      ctermfg=189 ctermbg=15
