@@ -287,6 +287,9 @@ nnoremap Vat vatV
 " Open help in a vertical split.
 autocmd FileType help wincmd L
 
+" Tell netrw to keep its history file in ~/.vim/tmp
+let g:netrw_home = '~/.vim/tmp'
+
 " Don't bother listing meta-file junk in NERDTree.
 let NERDTreeIgnore = ['\.o$', '\.svn$', '\.pyc$', '\~$', '\.class$', '\.dSYM$']
 
