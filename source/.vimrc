@@ -312,14 +312,14 @@ nnoremap <f9> Oimport ipdb; ipdb.set_trace()<esc>
 inoremap <f9> import ipdb; ipdb.set_trace()
 
 " Insert Python boilerplate.
-func! AutoLoadTemplate()
+func! LoadTemplate()
     silent! 0r ~/.vim/skel/tmpl.%:e
 endf
 
-autocmd BufNewFile * call AutoLoadTemplate()
+" autocmd BufNewFile * call LoadTemplate()
 
-nnoremap <f10> :call AutoLoadTemplate()<cr>
-inoremap <f10> <esc>:call AutoLoadTemplate()<cr>
+nnoremap <f10> :call LoadTemplate()<cr>
+inoremap <f10> <esc>:call LoadTemplate()<cr>
 
 
 " ------------------------------------------------------------------------------
