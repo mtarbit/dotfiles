@@ -1,18 +1,24 @@
 [global_config]
   window_state = maximise
-  handle_size = 5
+  handle_size = 3
   borderless = True
+  geometry_hinting = False
+  title_transmit_bg_color = "#808080"
+  title_inactive_bg_color = "#ffffff"
 [keybindings]
   split_horiz = <Ctrl>underscore
   new_window = <Ctrl><Shift>E
   split_vert = <Ctrl><Shift>I
+  zoom_in = <Ctrl>equal
 [profiles]
   [[default]]
+    palette = "#000000:#cc0000:#4e9a06:#c4a000:#3465a4:#75507b:#06989a:#d3d7cf:#555753:#ef2929:#8ae234:#fce94f:#729fcf:#ad7fa8:#34e2e2:#ffffff"
     scrollbar_position = hidden
-    scrollback_infinite = True
-    show_titlebar = False
-    cursor_color = red
+    cursor_color = "#000000"
+    foreground_color = "#000000"
+    background_color = "#ffffff"
     allow_bold = False
+    scrollback_infinite = True
 [layouts]
   [[default]]
     [[[child1]]]

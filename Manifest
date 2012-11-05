@@ -1,5 +1,5 @@
 .bash_profile
-.config
+.config/terminator
 .inputrc
 .irbrc
 .tmux.conf
