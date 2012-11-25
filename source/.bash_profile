@@ -42,6 +42,12 @@ __prompt_branch() {
     echo "$(__git_ps1 " $YLW_CLR[%s]$NON_CLR" 2> /dev/null)"
 }
 
+__prompt_venv() {
+    if [[ $VIRTUAL_ENV != '' ]]; then
+        echo " $YLW_CLR($(basename "$VIRTUAL_ENV"))$NON_CLR"
+    fi
+}
+
 __prompt_status() {
     if test "$?" -eq 0
     then
@@ -53,7 +59,7 @@ __prompt_status() {
 
 __prompt() {
     export STATUS_CHAR="$(__prompt_status)"
-    export PS1="$(__prompt_date)$(__prompt_colour)\u$NON_CLR on $GRN_CLR\h$NON_CLR in $PPL_CLR\w$NON_CLR$(__prompt_branch)\n$(__prompt_colour)$STATUS_CHAR $NON_CLR"
+    export PS1="$(__prompt_date)$(__prompt_colour)\u$NON_CLR on $GRN_CLR\h$NON_CLR in $PPL_CLR\w$NON_CLR$(__prompt_branch)$(__prompt_venv)\n$(__prompt_colour)$STATUS_CHAR $NON_CLR"
     export PS2="$(__prompt_colour)$PROMPT_CONT $NON_CLR "
 }
 
