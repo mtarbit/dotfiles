@@ -69,7 +69,7 @@ fi
 
 if [[ $platform == 'Linux' ]]; then
 
-    alias 'ls'='ls -hA --color=auto'
+    alias 'ls'='ls -hpA --color=auto'
     alias 'open'='gnome-open'
     alias 'mduml'='~/MagicDraw_Reader/bin/mduml'
     export PATH="$PATH:~/bin"
@@ -90,7 +90,7 @@ if [[ $platform == 'Linux' ]]; then
 
 else
 
-    alias 'ls'='ls -hGA'
+    alias 'ls'='ls -hpAG'
     export PATH="$PATH:~/bin:/usr/local/mysql/bin"
     export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib"
 
