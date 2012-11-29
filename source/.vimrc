@@ -288,6 +288,20 @@ endf
 noremap <leader>- YpVr-
 noremap <leader>= YpVr=
 
+" Toggle the current word or selection between under_score & camelCase naming styles.
+nmap <silent> <leader>_ mZviw<leader>_`Z
+nmap <silent> <leader>c mZviw<leader>c`Z
+vnoremap <silent> <leader>_ mz:call SnakeCaseSelection()<cr>`z
+vnoremap <silent> <leader>c mz:call CamelCaseSelection()<cr>`z
+
+func! SnakeCaseSelection()
+    :s/\%V\([a-z]\)\([A-Z]\)/\1_\l\2/ge
+endf
+
+func! CamelCaseSelection()
+    :s/\%V_\([a-z]\)/\u\1/ge
+endf
+
 " Better linewise selection in/around HTML tags.
 nnoremap Vit vitVkoj
 nnoremap Vat vatV
