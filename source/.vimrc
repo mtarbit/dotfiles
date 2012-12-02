@@ -17,18 +17,14 @@ filetype indent on
 " Don't hobble vim in favour of vi-compatibility.
 set nocompatible
 
-
-" Highlight the line that the cursor is on.
-set cursorline
-
 " Don't wrap lines.
 set nowrap
 
-" Number lines (using relative line-numbering if it's available)
+" Number lines (using relative line-numbering if it's available).
 " if exists('+relativenumber')
 "     set relativenumber
 " else
-     set number
+    set number
 " endif
 
 " Don't beep or flash as an alert.
@@ -121,6 +117,10 @@ set list
 augroup mt_whitespace
     autocmd!
 
+    " Show trailing whitespace when out of insert mode.
+    autocmd InsertEnter * :set listchars-=trail:⌴
+    autocmd InsertLeave * :set listchars+=trail:⌴
+
     " Should probably be doing this sort of thing with ft plugin, indent et al...
     " Use smaller tabs when editing a ruby file.
     autocmd Filetype ruby,yaml,haml,cucumber set ts=2 sts=2 sw=2 expandtab
@@ -199,13 +199,7 @@ vnoremap L $h
 " inoremap <left> <nop>
 " inoremap <right> <nop>
 
-" Jump between matching brackets with tab & shift-tab.
-" nnoremap <tab> %
-" nnoremap <s-tab> %
-
 " Indent & unindent with tab & shift-tab.
-" inoremap <tab> <c-t>
-" inoremap <s-tab> <c-d>
 nnoremap <tab> >>
 nnoremap <s-tab> <<
 vnoremap <tab> >gv
@@ -215,26 +209,18 @@ vnoremap <s-tab> <gv
 noremap p p`[
 noremap P P`[
 
-" nnoremap } /\n\s*\n\s*\S/e<cr>
-" nnoremap { ?\n\s*\n\s*\S?e<cr>
-" vnoremap } /\n\s*\n\s*\S/e-1<cr>
-" vnoremap { ?\n\s*\n\s*\S?e-1<cr>
+" Better linewise selection in/around HTML tags.
+nnoremap Vit vitVkoj
+nnoremap Vat vatV
 
 " Enter command-mode with one less key-press.
 noremap ; :
-
-" Shortcuts for tab handling (c-t overwrites a tag-stack key combo).
-noremap <c-t> :tabnew<cr>
-noremap <s-left> :tabprevious<cr>
-noremap <s-right> :tabnext<cr>
 
 if has('unix')
     let s:uname = system('echo -n `uname`')
     if s:uname == "Darwin"
         " Backslash is in a different place on mac keyboards, so standardise.
         let mapleader="`"
-        " Copy to system clipboard.
-        vnoremap <leader>y :w !pbcopy<cr><cr>
         " We have a patched font installed for powerline, so we can use fancy symbols.
         let g:Powerline_symbols = 'fancy'
     endif
@@ -246,7 +232,7 @@ noremap <leader>W :write !sudo tee > /dev/null %<cr>
 noremap <leader>d :quit<cr>
 
 " Just a tiny bit quicker:
-noremap <leader>h :help
+noremap <leader>h :help<space>
 
 " Edit vim config in a split pane. Also reload vim config without restarting.
 noremap <leader>v :vsplit $MYVIMRC<cr>
@@ -269,6 +255,20 @@ noremap <leader>t :execute "normal gg=G"<bar>execute "normal ''"<bar>%s/\s\+$//e
 noremap <leader>2 :set ts=2 sts=2 sw=2 expandtab<cr>
 noremap <leader>4 :set ts=4 sts=4 sw=4 expandtab<cr>
 
+" Underline & double-underline.
+noremap <leader>- YpVr-
+noremap <leader>= YpVr=
+
+" Show syntax highlighting groups for word under cursor
+" See: http://vimcasts.org/episodes/creating-colorschemes-for-vim/
+nnoremap <leader>syn :call SynStack()<CR>
+func! SynStack()
+    if exists("*synstack")
+        echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+    endif
+endf
+
+" Toggle wrapping and highlighting of long-lines.
 noremap <leader>l :call ToggleWrapping()<cr>
 func! ToggleWrapping()
     let ww = 80
@@ -299,19 +299,6 @@ func! ToggleNumbering()
     endif
 endf
 
-" Show syntax highlighting groups for word under cursor
-" See: http://vimcasts.org/episodes/creating-colorschemes-for-vim/
-nnoremap <leader>syn :call SynStack()<CR>
-func! SynStack()
-    if exists("*synstack")
-        echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-    endif
-endf
-
-" Underline & double-underline.
-noremap <leader>- YpVr-
-noremap <leader>= YpVr=
-
 " Toggle the current word or selection between under_score & camelCase naming styles.
 nmap <silent> <leader>_ mZviw<leader>_`Z
 nmap <silent> <leader>c mZviw<leader>c`Z
@@ -325,10 +312,6 @@ endf
 func! CamelCaseSelection()
     :s/\%V_\([a-z]\)/\u\1/ge
 endf
-
-" Better linewise selection in/around HTML tags.
-nnoremap Vit vitVkoj
-nnoremap Vat vatV
 
 
 " ------------------------------------------------------------------------------
@@ -368,6 +351,7 @@ inoremap <f10> <esc>:call LoadTemplate()<cr>
 augroup mt_miscellaneous
     autocmd!
 
+    " Load file template with boilerplate based on file extension.
     " autocmd BufNewFile * call LoadTemplate()
 
     " Open help in a vertical split.
@@ -410,14 +394,14 @@ inoremap <leader>{ {
 inoremap <leader>" "
 inoremap <leader>' '
 
-" Wrap visual selections
-vmap ( s(<c-r>"<esc>
-vmap [ s[<c-r>"<esc>
-vmap <leader>{ s{<c-r>"<esc>
-vmap ' s'<c-r>"<esc>
-vmap <leader>" s"<c-r>"<esc>
-vmap <leader><lt> s<leader><lt><right><c-r>"<esc>`[<left>i
-vmap <leader>> s<leader>><c-r>"<esc>
+" Wrap visual selections (using leader to avoid conflict with motions, etc)
+vnoremap <leader>( s()<left><c-r>"<esc>
+vnoremap <leader>[ s[]<left><c-r>"<esc>
+vnoremap <leader>{ s{}<left><c-r>"<esc>
+vnoremap <leader>" s""<left><c-r>"<esc>
+vnoremap <leader>' s''<left><c-r>"<esc>
+vnoremap <leader><lt> s<lt>></><left><left><left><c-r>"<esc>`[<left>i
+vnoremap <leader>> s<lt>><left><c-r>"<esc>
 
 " Delete auto-pairs as quickly as you can create them.
 inoremap <expr> <bs> DeleteEmptyPair()
@@ -553,7 +537,7 @@ func! DeleteEmptyPair()
                 return "\<c-o>" . len(curr_a) . "X" . "\<c-o>" . len(curr_b) . "x"
             endif
         endfor
-        
+
         return "\<bs>"
 
     endif
@@ -576,7 +560,7 @@ func! CompleteTag()
         let line_a = strpart(line, 0, col)
         let line_a_idx = strridx(line_a, '<')
         let line_a = strpart(line_a, line_a_idx)
-        
+
         let line_b = strpart(line, col)
         let line_b_idx = stridx(line_b, '>') + 1
         let line_b = strpart(line_b, 0, line_b_idx)
