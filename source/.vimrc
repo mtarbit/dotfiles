@@ -57,21 +57,6 @@ set splitright
 set modeline
 set modelines=1
 
-" Move to the directory of the current file automatically.
-" autocmd BufEnter * lcd %:p:h
-
-" Start in insert mode after opening a command window
-" (with Ctrl-F from cmdline or q:, q/, q? from normal mode).
-autocmd CmdwinEnter [:/?] startinsert
-
-" Change cursor color in insert mode where supported.
-" if &term =~ "xterm\\|rxvt"
-"     :silent !echo -ne "\033]12;red\007"
-"     let &t_SI = "\033]12;orange\007"
-"     let &t_EI = "\033]12;red\007"
-"     autocmd VimLeave * :!echo -ne "\033]12;red\007"
-" endif
-
 " Start scrolling slightly before the cursor reaches an edge.
 set scrolloff=5
 set sidescrolloff=10
@@ -90,6 +75,27 @@ if !exists('g:Powerline_loaded') || !g:Powerline_loaded
     set statusline=%t\ %r%m%y\ %=[%l\ of\ %L]
 endif
 
+" Auto-commands
+augroup mt_general
+    autocmd!
+
+    " Change cursor color in insert mode where supported.
+    " if &term =~ "xterm\\|rxvt"
+    "     :silent !echo -ne "\033]12;red\007"
+    "     let &t_SI = "\033]12;orange\007"
+    "     let &t_EI = "\033]12;red\007"
+    "     autocmd VimLeave * :!echo -ne "\033]12;red\007"
+    " endif
+
+    " Move to the directory of the current file automatically.
+    " autocmd BufEnter * lcd %:p:h
+
+    " Start in insert mode after opening a command window
+    " (with Ctrl-F from cmdline or q:, q/, q? from normal mode).
+    autocmd CmdwinEnter [:/?] startinsert
+augroup END
+
+
 " ------------------------------------------------------------------------------
 " Whitespace
 " ------------------------------------------------------------------------------
@@ -104,19 +110,26 @@ set smarttab
 " Four space tabs, and convert tabs to spaces.
 set ts=4 sts=4 sw=4 expandtab
 
-" Should probably be doing this sort of thing with ft plugin, indent et al...
-" Use smaller tabs when editing a ruby file.
-autocmd Filetype ruby,yaml,haml,cucumber set ts=2 sts=2 sw=2 expandtab
-" Seem to be getting the above in eruby too, which I don't want.
-autocmd Filetype eruby set ts=4 sts=4 sw=4 expandtab
-autocmd BufNewFile,BufRead *.ejs set filetype=eruby
-
 " Use nicer representations when showing invisible characters.
 set listchars=tab:\▸\ ,eol:·,extends:»,precedes:«
 set showbreak=↪
 
 " Show whitespace.
 set list
+
+" Auto-commands
+augroup mt_whitespace
+    autocmd!
+
+    " Should probably be doing this sort of thing with ft plugin, indent et al...
+    " Use smaller tabs when editing a ruby file.
+    autocmd Filetype ruby,yaml,haml,cucumber set ts=2 sts=2 sw=2 expandtab
+
+    " Seem to be getting the above in eruby too, which I don't want.
+    autocmd Filetype eruby set ts=4 sts=4 sw=4 expandtab
+    autocmd BufNewFile,BufRead *.ejs set filetype=eruby
+augroup END
+
 
 " ------------------------------------------------------------------------------
 " Colouring
@@ -131,14 +144,19 @@ colorscheme matts-light
 " Use fancy colours.
 set t_Co=256
 
-" Highlight django template tags in html files.
-" autocmd BufNewFile,BufRead *.html set filetype=django
-autocmd FileType django set autoindent&
-autocmd FileType django set indentexpr&
-
 " Briefly highlight matching bracket when completing a pair
 set showmatch
 set matchtime=1
+
+" Auto-commands
+augroup mt_colouring
+    autocmd!
+
+    " Highlight django template tags in html files.
+    " autocmd BufNewFile,BufRead *.html set filetype=django
+    autocmd FileType django set autoindent&
+    autocmd FileType django set indentexpr&
+augroup END
 
 
 " ------------------------------------------------------------------------------
@@ -227,6 +245,9 @@ noremap <leader>w :update<cr>
 noremap <leader>W :write !sudo tee > /dev/null %<cr>
 noremap <leader>d :quit<cr>
 
+" Just a tiny bit quicker:
+noremap <leader>h :help
+
 " Edit vim config in a split pane. Also reload vim config without restarting.
 noremap <leader>v :vsplit $MYVIMRC<cr>
 noremap <leader>u :source $MYVIMRC<cr>
@@ -314,9 +335,6 @@ nnoremap Vat vatV
 " Miscellaneous
 " ------------------------------------------------------------------------------
 
-" Open help in a vertical split.
-autocmd FileType help wincmd L
-
 " Tell netrw to keep its history file in ~/.vim/tmp
 let g:netrw_home = '~/.vim/tmp'
 
@@ -343,10 +361,18 @@ func! LoadTemplate()
     silent! 0r ~/.vim/skel/tmpl.%:e
 endf
 
-" autocmd BufNewFile * call LoadTemplate()
-
 nnoremap <f10> :call LoadTemplate()<cr>
 inoremap <f10> <esc>:call LoadTemplate()<cr>
+
+" Auto-commands
+augroup mt_miscellaneous
+    autocmd!
+
+    " autocmd BufNewFile * call LoadTemplate()
+
+    " Open help in a vertical split.
+    autocmd FileType help wincmd L
+augroup END
 
 
 " ------------------------------------------------------------------------------
@@ -393,20 +419,24 @@ vmap <leader>" s"<c-r>"<esc>
 vmap <leader><lt> s<leader><lt><right><c-r>"<esc>`[<left>i
 vmap <leader>> s<leader>><c-r>"<esc>
 
-" Add mappings for django template tags.
-autocmd Filetype html,django inoremap <buffer> <leader>{ {{<space><space>}}<left><left><left>
-autocmd Filetype html,django inoremap <buffer> <leader>% {%<space><space>%}<left><left><left>
-" And some for rails / erb.
-autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>% <%<space><space>%><left><left><left>
-autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>= <%=<space><space>%><left><left><left>
-
 " Delete auto-pairs as quickly as you can create them.
 inoremap <expr> <bs> DeleteEmptyPair()
 " Return inside an auto-pair snaps it open and indents.
 inoremap <expr> <cr> SplitEmptyPair()
 
-" Auto-complete html end tags based on edits to the start tag.
-autocmd CursorMovedI * call CompleteTag()
+augroup mt_pairs
+    autocmd!
+
+    " Add mappings for django template tags.
+    autocmd Filetype html,django inoremap <buffer> <leader>{ {{<space><space>}}<left><left><left>
+    autocmd Filetype html,django inoremap <buffer> <leader>% {%<space><space>%}<left><left><left>
+    " And some for rails / erb.
+    autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>% <%<space><space>%><left><left><left>
+    autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>= <%=<space><space>%><left><left><left>
+
+    " Auto-complete html end tags based on edits to the start tag.
+    autocmd CursorMovedI * call CompleteTag()
+augroup END
 
 
 " ------------------------------------------------------------------------------
