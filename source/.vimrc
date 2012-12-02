@@ -188,6 +188,25 @@ noremap H ^
 nnoremap L $
 vnoremap L $h
 
+" Experimenting with remapped text-object motions for paragraphs.
+nnoremap <silent> } /\v([\n\r]\s*){2,}\S/e<cr>
+vnoremap <silent> } /\v\S.*([\n\r]\s*){2,}/s<cr>
+nnoremap <silent> { ?\v([\n\r]\s*){2,}\S?e<cr>
+vnoremap <silent> { ?\v\S.*([\n\r]\s*){2,}?s<cr>
+
+" Quickly create a new paragraph:
+nnoremap <cr> O<c-o>O
+
+" Next section start:
+" noremap <buffer> ]] /\v^([\n\r]\s*){1,}\S/e<cr>
+" Next section end:
+" noremap <buffer> ][ /\v^\s*\S.*([\n\r]\s*){2,}/s<cr>
+" Prev section start:
+" noremap <buffer> [[ ?\v^([\n\r]\s*){1,}\S?e<cr>
+" Prev section end:
+" noremap <buffer> [] ?\v^\s*\S.*([\n\r]\s*){2,}?s<cr>
+
+
 " Disable cursor-keys to encourage better hand position.
 " noremap <up> <nop>
 " noremap <down> <nop>
