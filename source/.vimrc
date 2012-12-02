@@ -17,9 +17,6 @@ filetype indent on
 " Don't hobble vim in favour of vi-compatibility.
 set nocompatible
 
-" Always show a status bar above the command prompt.
-set laststatus=2
-set statusline=%t\ %r%m%y\ %=[%l\ of\ %L]
 
 " Highlight the line that the cursor is on.
 set cursorline
@@ -86,6 +83,12 @@ set sidescroll=1
 " vim to base the filename on the full path of the original to avoid conflicts.
 set directory=~/.vim/tmp/swap//
 
+" Configure the status line unless we're using the powerline plugin.
+if !exists('g:Powerline_loaded') || !g:Powerline_loaded
+    " Always show a status line above the command prompt.
+    set laststatus=2
+    set statusline=%t\ %r%m%y\ %=[%l\ of\ %L]
+endif
 
 " ------------------------------------------------------------------------------
 " Whitespace
