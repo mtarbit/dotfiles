@@ -188,6 +188,9 @@ noremap H ^
 nnoremap L $
 vnoremap L $h
 
+" Open files relative to the path of the current file.
+cnoremap %% <c-r>=expand('%:h').'/'<cr>
+
 " Quickly create a new paragraph:
 nnoremap <leader>o o<c-o>o
 nnoremap <leader>O O<c-o>O
