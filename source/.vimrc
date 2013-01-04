@@ -294,9 +294,18 @@ noremap <leader>d :quit<cr>
 " Just a tiny bit quicker:
 noremap <leader>h :help<space>
 
-" Edit vim config in a split pane. Also reload vim config without restarting.
+" Edit or reload the current config.
 noremap <leader>v :vsplit $MYVIMRC<cr>
 noremap <leader>u :source $MYVIMRC<cr>
+" Edit or reload the current color scheme.
+noremap <leader>vc :execute 'vsplit ' . ColorSchemePath()<cr>
+noremap <leader>uc :execute 'colorscheme ' . g:colors_name<cr>
+
+func! ColorSchemePath()
+    let glob = 'colors/' . g:colors_name . '.vim'
+    let path = split(globpath(&runtimepath, glob), "\n")[0]
+    return path
+endf
 
 " Toggle invisible characters.
 noremap <leader>i :set list!<cr>
