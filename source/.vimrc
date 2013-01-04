@@ -197,10 +197,10 @@ nnoremap <leader>O O<c-o>O
 augroup mt_sections
     autocmd!
 
-    autocmd FileType * unmap <buffer> ]]
-    autocmd FileType * unmap <buffer> ][
-    autocmd FileType * unmap <buffer> [[
-    autocmd FileType * unmap <buffer> []
+    autocmd FileType * silent! unmap <buffer> ]]
+    autocmd FileType * silent! unmap <buffer> ][
+    autocmd FileType * silent! unmap <buffer> [[
+    autocmd FileType * silent! unmap <buffer> []
 augroup END
 
 " Next section start or end:
