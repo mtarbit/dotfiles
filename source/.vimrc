@@ -188,23 +188,61 @@ noremap H ^
 nnoremap L $
 vnoremap L $h
 
-" Experimenting with remapped text-object motions for paragraphs.
-nnoremap <silent> } /\v([\n\r]\s*){2,}\S/e<cr>
-vnoremap <silent> } /\v\S.*([\n\r]\s*){2,}/s<cr>
-nnoremap <silent> { ?\v([\n\r]\s*){2,}\S?e<cr>
-vnoremap <silent> { ?\v\S.*([\n\r]\s*){2,}?s<cr>
-
 " Quickly create a new paragraph:
-nnoremap <cr> O<c-o>O
+nnoremap <leader>o o<c-o>o
+nnoremap <leader>O O<c-o>O
 
-" Next section start:
-" noremap <buffer> ]] /\v^([\n\r]\s*){1,}\S/e<cr>
-" Next section end:
-" noremap <buffer> ][ /\v^\s*\S.*([\n\r]\s*){2,}/s<cr>
-" Prev section start:
-" noremap <buffer> [[ ?\v^([\n\r]\s*){1,}\S?e<cr>
-" Prev section end:
-" noremap <buffer> [] ?\v^\s*\S.*([\n\r]\s*){2,}?s<cr>
+" Unmap vim's default buffer-local section mappings 
+" otherwise our global ones will be over-ridden.
+augroup mt_sections
+    autocmd!
+
+    autocmd FileType * unmap <buffer> ]]
+    autocmd FileType * unmap <buffer> ][
+    autocmd FileType * unmap <buffer> [[
+    autocmd FileType * unmap <buffer> []
+augroup END
+
+" Next section start or end:
+noremap <silent> ]] :call NextSection(0, 0, 0)<cr>
+noremap <silent> ][ :call NextSection(0, 1, 0)<cr>
+" Prev section start or end:
+noremap <silent> [[ :call NextSection(1, 0, 0)<cr>
+noremap <silent> [] :call NextSection(1, 1, 0)<cr>
+
+" Next section start or end (visual):
+vnoremap <silent> ]] :<c-u>call NextSection(0, 0, 1)<cr>
+vnoremap <silent> ][ :<c-u>call NextSection(0, 1, 1)<cr>
+" Prev section start or end (visual):
+vnoremap <silent> [[ :<c-u>call NextSection(1, 0, 1)<cr>
+vnoremap <silent> [] :<c-u>call NextSection(1, 1, 1)<cr>
+
+" Jump to the start or end of the next section, where 'section'
+" is defined as a group of one or more non-empty lines.
+func! NextSection(backwards, sectionend, visual)
+    if a:visual
+        normal! gv
+    endif
+
+    let pattern = '([\n\r]\s*){2,}'
+    let flags = 'W'
+
+    if a:backwards
+        let pattern = '(%^|' . pattern . ')'
+        let flags = flags . 'b'
+    else
+        let pattern = '(%$|' . pattern . ')'
+    endif
+
+    if a:sectionend
+        let pattern = '\v' . '\S.*' . pattern
+    else
+        let pattern = '\v' . pattern . '\S'
+        let flags = flags . 'e'
+    endif
+
+    call search(pattern, flags)
+endf
 
 
 " Disable cursor-keys to encourage better hand position.
@@ -265,7 +303,7 @@ noremap <leader>p :set paste!<cr>
 " Toggle the NERDTree file browser in a sidebar.
 noremap <leader>e :NERDTreeToggle<cr>
 " Toggle zooming (temporarily display only the current one of multiple windows).
-noremap <leader>o :ZoomWin<cr>
+noremap <leader>z :ZoomWin<cr>
 
 " Re-indent, remove trailing whitespace & convert tabs to spaces.
 noremap <leader>t :execute "normal gg=G"<bar>execute "normal ''"<bar>%s/\s\+$//e<bar>retab<cr>
