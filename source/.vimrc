@@ -224,7 +224,7 @@ func! NextSection(backwards, sectionend, visual)
         normal! gv
     endif
 
-    let pattern = '([\n\r]\s*){2,}'
+    let pattern = '\_^\s*\n'
     let flags = 'W'
 
     if a:backwards
@@ -235,9 +235,9 @@ func! NextSection(backwards, sectionend, visual)
     endif
 
     if a:sectionend
-        let pattern = '\v' . '\S.*' . pattern
+        let pattern = '\v' . '\S[\s\n]*' . pattern
     else
-        let pattern = '\v' . pattern . '\S'
+        let pattern = '\v' . pattern . '\s*\S'
         let flags = flags . 'e'
     endif
 
