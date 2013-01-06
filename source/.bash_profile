@@ -112,5 +112,11 @@ mkcd() { mkdir -p "${@}" && cd "${1}"; }
 # As instructed in rvm installer instructions:
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
+# Or use rbenv if it's available:
+if [[ -s "$HOME/.rbenv/bin" ]]; then
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+fi
+
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
