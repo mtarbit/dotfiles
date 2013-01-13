@@ -80,9 +80,13 @@ if [[ $platform == 'Linux' ]]; then
     alias 'mduml'='~/MagicDraw_Reader/bin/mduml'
     export PATH="$PATH:~/bin"
 
+    if [[ -n $DISPLAY ]]; then
+        setxkbmap -option "caps:escape"
+    fi
+
     # Terminator's window titles get filled with cruft.
     # This is an attempt to keep them clean and useful.
-    
+
     # setWindowTitle() {
     #     echo -ne "\e]2;$*\a"
     # }
