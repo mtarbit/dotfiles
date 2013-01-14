@@ -56,7 +56,7 @@ function remove_symlink {
     fi
 
   elif [ -e $target ]; then
-    echo -e $(color $red "Warning - Found regular file in target location: $target")
+    echo -e $(color $red "Warning - Regular file at target location: $target")
   else
     echo -e $(color $ylw "Nothing to do for: $target")
   fi
@@ -94,7 +94,7 @@ function update {
 
 function usage {
   echo "Usage: $script [<command>] [-d|--dry-run]"
-  echo "Where <command> is 'install', 'uninstall' or 'udate'."
+  echo "Where <command> is 'install', 'uninstall' or 'update'."
   exit 0
 }
 
