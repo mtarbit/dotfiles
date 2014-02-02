@@ -24,6 +24,8 @@ export PROMPT_CONT="."
 export PS1="${PS1_CLR}$PROMPT_CHAR $NON_CLR"
 export PS2="${PS1_CLR}$PROMPT_CONT $NON_CLR "
 
+export HISTCONTROL=ignoredups:ignorespace
+
 __prompt_colour() {
     # Doesn't work because root shell doesn't run this file.
     if [ $(id -u) -eq 0 ]; then
