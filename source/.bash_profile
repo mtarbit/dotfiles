@@ -61,8 +61,9 @@ __prompt_status() {
 
 __prompt() {
     export STATUS_CHAR="$(__prompt_status)"
-    export PS1="$(__prompt_date)$(__prompt_colour)\u$NON_CLR on $GRN_CLR\h$NON_CLR in $PPL_CLR\w$NON_CLR$(__prompt_branch)$(__prompt_venv)\n$(__prompt_colour)$STATUS_CHAR $NON_CLR"
-    export PS2="$(__prompt_colour)$PROMPT_CONT $NON_CLR "
+    export PROMPT_CLR="$(__prompt_colour)"
+    export PS1="$(__prompt_date)$PROMPT_CLR\u$NON_CLR on $GRN_CLR\h$NON_CLR in $PPL_CLR\w$NON_CLR$(__prompt_branch)$(__prompt_venv)\n$PROMPT_CLR$STATUS_CHAR $NON_CLR"
+    export PS2="$PROMPT_CLR$PROMPT_CONT $NON_CLR "
 }
 
 export PROMPT_COMMAND=__prompt
