@@ -10,10 +10,6 @@
 [submodule "source/.vim/bundle/vim-indent-object"]
 	path = source/.vim/bundle/vim-indent-object
 	url = https://github.com/michaeljsmith/vim-indent-object.git
-[submodule "source/.vim/bundle/vim-zoomwin"]
-	path = source/.vim/bundle/vim-zoomwin
-	url = https://github.com/Kris2k/Zoomwin-vim.git
-	ignore = untracked
 [submodule "source/.vim/bundle/editorconfig-vim"]
 	path = source/.vim/bundle/editorconfig-vim
 	url = https://github.com/editorconfig/editorconfig-vim
