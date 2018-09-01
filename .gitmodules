@@ -17,3 +17,21 @@
 	path = source/.vim/bundle/vim-zoomwin
 	url = https://github.com/Kris2k/Zoomwin-vim.git
 	ignore = untracked
+[submodule "source/.vim/bundle/editorconfig-vim"]
+	path = source/.vim/bundle/editorconfig-vim
+	url = https://github.com/editorconfig/editorconfig-vim
+[submodule "source/.vim/bundle/vim-airline"]
+	path = source/.vim/bundle/vim-airline
+	url = https://github.com/vim-airline/vim-airline
+[submodule "source/.vim/bundle/vim-airline-themes"]
+	path = source/.vim/bundle/vim-airline-themes
+	url = https://github.com/vim-airline/vim-airline-themes
+[submodule "source/.vim/bundle/vim-commentary"]
+	path = source/.vim/bundle/vim-commentary
+	url = https://github.com/tpope/vim-commentary
+[submodule "source/.vim/bundle/vim-go"]
+	path = source/.vim/bundle/vim-go
+	url = https://github.com/fatih/vim-go
+[submodule "source/.vim/bundle/vim-javascript"]
+	path = source/.vim/bundle/vim-javascript
+	url = https://github.com/pangloss/vim-javascript
