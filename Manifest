@@ -1,7 +1,6 @@
 .bash_profile
 .config/terminator
 .inputrc
-.irbrc
 .tmux.conf
 .vim
 .vimrc
