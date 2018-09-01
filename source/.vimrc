@@ -1,5 +1,5 @@
 " Use pathogen for neater plugin management.
-call pathogen#runtime_append_all_bundles() 
+call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 
 " Recognise file-type-specific plugin config in ftplugins dirs.
@@ -38,7 +38,7 @@ set wildmode=longest:full,full
 " Enable mouse support in all modes.
 set mouse=a
 
-" Allow motions and back-spacing over line-endings etc. 
+" Allow motions and back-spacing over line-endings etc.
 set backspace=indent,eol,start
 set whichwrap=h,l,b,<,>,~,[,]
 
@@ -51,7 +51,7 @@ set splitright
 
 " Look for modeline settings on the first line of a file.
 set modeline
-set modelines=1
+set modelines=5
 
 " Start scrolling slightly before the cursor reaches an edge.
 set scrolloff=5
@@ -68,8 +68,15 @@ set directory=~/.vim/tmp/swap//
 if !exists('g:Powerline_loaded') || !g:Powerline_loaded
     " Always show a status line above the command prompt.
     set laststatus=2
-    set statusline=%t\ %r%m%y\ %=[%l\ of\ %L]
+    set statusline=t\ %r%m%y\ %=[%l\ of\ %L]
 endif
+
+let g:airline_section_x = airline#section#create_right(['filetype', 'ffenc'])
+let g:airline_section_y = airline#section#create_right(['%p%%'])
+let g:airline_section_z = airline#section#create(['%l:%v'])
+let g:airline_section_error = ''
+let g:airline_section_warning = ''
+let g:airline_theme = 'matts_dark_minimal'
 
 " Auto-commands
 augroup mt_general
@@ -107,7 +114,7 @@ set smarttab
 set ts=4 sts=4 sw=4 expandtab
 
 " Use nicer representations when showing invisible characters.
-set listchars=tab:\▸\ ,eol:·,extends:»,precedes:«
+set listchars=tab:\▸\ ,eol:·,extends:»,precedes:«,nbsp:✗,trail:⌴
 set showbreak=↪
 
 " Show whitespace.
@@ -125,9 +132,21 @@ augroup mt_whitespace
     " Use smaller tabs when editing a ruby file.
     autocmd Filetype ruby,yaml,haml,cucumber set ts=2 sts=2 sw=2 expandtab
 
+    " Should probably be doing this sort of thing with ft plugin, indent et al...
+    " Use smaller tabs when editing a ruby file.
+    autocmd Filetype asm set ts=4 sts=4 sw=4 expandtab
+
     " Seem to be getting the above in eruby too, which I don't want.
-    autocmd Filetype eruby set ts=4 sts=4 sw=4 expandtab
-    autocmd BufNewFile,BufRead *.ejs set filetype=eruby
+    " autocmd Filetype eruby set ts=4 sts=4 sw=4 expandtab
+    " autocmd BufNewFile,BufRead *.ejs set filetype=eruby
+
+    " Don't use vim-go's additional highlighting for trailing whitespace
+    " since it's distracting in insert mode and we have our own version:
+    let g:go_highlight_trailing_whitespace_error = 0
+
+    " Don't highlight tabs in go files, since we're expected to use them:
+    autocmd Filetype go :set listchars+=tab:\ \ 
+    autocmd Filetype go :hi SpecialKey ctermfg=red ctermbg=none
 augroup END
 
 
@@ -135,14 +154,19 @@ augroup END
 " Colouring
 " ------------------------------------------------------------------------------
 
+" Use fancy colours.
+set t_Co=256
+
+" On a light background
+set background=light
+
 " Turn on syntax-highlighing.
 syntax on
 
 " Worthwhile schemes: elflord, molokai, mustang, matts-mustang, matts-light
+" colorscheme matts-mustang
+" colorscheme matts-darkside
 colorscheme matts-light
-
-" Use fancy colours.
-set t_Co=256
 
 " Briefly highlight matching bracket when completing a pair
 set showmatch
@@ -153,7 +177,7 @@ augroup mt_colouring
     autocmd!
 
     " Highlight django template tags in html files.
-    " autocmd BufNewFile,BufRead *.html set filetype=django
+    autocmd BufNewFile,BufRead *.twig set filetype=django
     autocmd FileType django set autoindent&
     autocmd FileType django set indentexpr&
 augroup END
@@ -164,7 +188,7 @@ augroup END
 " ------------------------------------------------------------------------------
 
 " Don't keep results highlighted after searching...
-set nohlsearch 
+set nohlsearch
 " ...just highlight as we type.
 set incsearch
 
@@ -195,7 +219,7 @@ cnoremap %% <c-r>=expand('%:h').'/'<cr>
 nnoremap <leader>o o<c-o>o
 nnoremap <leader>O O<c-o>O
 
-" Unmap vim's default buffer-local section mappings 
+" Unmap vim's default buffer-local section mappings
 " otherwise our global ones will be over-ridden.
 augroup mt_sections
     autocmd!
@@ -253,7 +277,7 @@ endf
 " noremap <down> <nop>
 " noremap <left> <nop>
 " noremap <right> <nop>
-" 
+"
 " inoremap <up> <nop>
 " inoremap <down> <nop>
 " inoremap <left> <nop>
@@ -265,7 +289,7 @@ nnoremap <s-tab> <<
 vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
-" Move the cursor back to its original position after pasting.
+" Return the cursor to its original position after pasting.
 noremap p p`[
 noremap P P`[
 
@@ -277,12 +301,12 @@ nnoremap Vat vatV
 noremap ; :
 
 if has('unix')
-    let s:uname = system('echo -n `uname`')
+    let s:uname = systemlist('uname')[0]
     if s:uname == "Darwin"
         " Backslash is in a different place on mac keyboards, so standardise.
         let mapleader="`"
         " We have a patched font installed for powerline, so we can use fancy symbols.
-        let g:Powerline_symbols = 'fancy'
+        " let g:Powerline_symbols = 'fancy'
     endif
 endif
 
@@ -315,7 +339,19 @@ noremap <leader>p :set paste!<cr>
 " Toggle the NERDTree file browser in a sidebar.
 noremap <leader>e :NERDTreeToggle<cr>
 " Toggle zooming (temporarily display only the current one of multiple windows).
-noremap <leader>z :ZoomWin<cr>
+noremap <leader>z :ToggleZoom<cr>
+function! s:ToggleZoom() abort
+    if exists('t:zoomed') && t:zoomed
+        execute t:zoom_winrestcmd
+        let t:zoomed = 0
+    else
+        let t:zoom_winrestcmd = winrestcmd()
+        resize
+        vertical resize
+        let t:zoomed = 1
+    endif
+endfunction
+command! ToggleZoom call s:ToggleZoom()
 
 " Re-indent, remove trailing whitespace & convert tabs to spaces.
 noremap <leader>t :execute "normal gg=G"<bar>execute "normal ''"<bar>%s/\s\+$//e<bar>retab<cr>
@@ -325,8 +361,8 @@ noremap <leader>2 :set ts=2 sts=2 sw=2 expandtab<cr>
 noremap <leader>4 :set ts=4 sts=4 sw=4 expandtab<cr>
 
 " Underline & double-underline.
-noremap <leader>- YpVr-
-noremap <leader>= YpVr=
+noremap <leader>- Yp^v$r-
+noremap <leader>= Yp^v$r=
 
 " Show syntax highlighting groups for word under cursor
 " See: http://vimcasts.org/episodes/creating-colorschemes-for-vim/
@@ -408,13 +444,16 @@ let html_no_rendering=1
 nnoremap <f9> Oimport ipdb; ipdb.set_trace()<esc>
 inoremap <f9> import ipdb; ipdb.set_trace()
 
-" Insert Python boilerplate.
-func! LoadTemplate()
-    silent! 0r ~/.vim/skel/tmpl.%:e
-endf
+nnoremap <f10> Oimport pdb; pdb.set_trace()<esc>
+inoremap <f10> import pdb; pdb.set_trace()
 
-nnoremap <f10> :call LoadTemplate()<cr>
-inoremap <f10> <esc>:call LoadTemplate()<cr>
+" Insert Python boilerplate.
+" func! LoadTemplate()
+"     silent! 0r ~/.vim/skel/tmpl.%:e
+" endf
+"
+" nnoremap <f10> :call LoadTemplate()<cr>
+" inoremap <f10> <esc>:call LoadTemplate()<cr>
 
 " Auto-commands
 augroup mt_miscellaneous
@@ -469,8 +508,11 @@ vnoremap <leader>[ s[]<left><c-r>"<esc>
 vnoremap <leader>{ s{}<left><c-r>"<esc>
 vnoremap <leader>" s""<left><c-r>"<esc>
 vnoremap <leader>' s''<left><c-r>"<esc>
+vnoremap <leader>` s``<left><c-r>"<esc>
 vnoremap <leader><lt> s<lt>></><left><left><left><c-r>"<esc>`[<left>i
 vnoremap <leader>> s<lt>><left><c-r>"<esc>
+
+vnoremap <leader>h s{% header_link "" %}<left><left><left><left><c-r>"<esc>
 
 " Delete auto-pairs as quickly as you can create them.
 inoremap <expr> <bs> DeleteEmptyPair()
@@ -480,12 +522,15 @@ inoremap <expr> <cr> SplitEmptyPair()
 augroup mt_pairs
     autocmd!
 
-    " Add mappings for django template tags.
-    autocmd Filetype html,django inoremap <buffer> <leader>{ {{<space><space>}}<left><left><left>
-    autocmd Filetype html,django inoremap <buffer> <leader>% {%<space><space>%}<left><left><left>
-    " And some for rails / erb.
-    autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>% <%<space><space>%><left><left><left>
-    autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>= <%=<space><space>%><left><left><left>
+    " Add mappings for rails / erb.
+    " autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>% <%<space><space>%><left><left><left>
+    " autocmd Filetype html,eruby,ejs inoremap <buffer> <leader>= <%=<space><space>%><left><left><left>
+
+    " And some for django / jinja / liquid.
+    " autocmd Filetype html,htmldjango,django inoremap <buffer> <leader>{ {{<space><space>}}<left><left><left>
+    " autocmd Filetype html,htmldjango,django inoremap <buffer> <leader>% {%<space><space>%}<left><left><left>
+
+    autocmd Filetype php inoremap <buffer> <leader>? <lt>?php<space><space>?><left><left><left>
 
     " Auto-complete html end tags based on edits to the start tag.
     autocmd CursorMovedI * call CompleteTag()
@@ -524,7 +569,7 @@ func! CloseQuote(char)
         " Opening a pair, auto-close it.
         return a:char.a:char."\<left>"
     endif
-endf 
+endf
 
 func! IsAlpha(c)
     let n = char2nr(a:c)
@@ -616,7 +661,8 @@ func! SplitEmptyPair()
     let pairs = split(&matchpairs,',') + ['<:>','":"',"':'"]
     if InAnEmptyPair(pairs) || InAnEmptyTag()
         " return "\<cr>\<cr>\<up>\<tab>"
-        return "\<c-o>x\<cr>\<c-r>\"\<left>\<cr>\<up>\<tab>"
+        " return "\<c-o>x\<cr>\<c-r>\"\<left>\<cr>\<up>\<tab>"
+        return "\<cr>\<up>\<c-o>A\<cr>"
     else
         return "\<cr>"
     endif
@@ -642,4 +688,3 @@ func! CompleteTag()
         endif
     endif
 endf
-

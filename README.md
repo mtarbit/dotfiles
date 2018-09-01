@@ -14,7 +14,7 @@ If adapting for your own use, add dotfiles to `/source` and list them in the `Ma
 ### Bootstrap commands
 
  * __install__  Creates symlinks in your `$HOME` directory for the paths listed in the Manifest, and initializes and updates any git submodules (used here for vim bundles).
- * __uinstall__ Removes symlinks from your `$HOME` directory for the paths listed in the Manifest.
+ * __uninstall__ Removes symlinks from your `$HOME` directory for the paths listed in the Manifest.
  * __update__ Still to be written.
 
 ### Acknowledgments
