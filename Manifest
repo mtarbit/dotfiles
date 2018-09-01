@@ -1,4 +1,5 @@
 .bash_profile
+.config/iterm2
 .config/terminator
 .inputrc
 .tmux.conf
