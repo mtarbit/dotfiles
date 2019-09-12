@@ -60,6 +60,9 @@ set sidescrolloff=10
 " Scroll sideways a character at a time, rather than a screen at a time.
 set sidescroll=1
 
+" Delete comment character when joining commented lines.
+set formatoptions+=j
+
 " Keep temporary files out of working directories. Trailing double-slash tells
 " vim to base the filename on the full path of the original to avoid conflicts.
 set directory=~/.vim/tmp/swap//
@@ -114,7 +117,8 @@ set smarttab
 set ts=4 sts=4 sw=4 expandtab
 
 " Use nicer representations when showing invisible characters.
-set listchars=tab:\▸\ ,eol:·,extends:»,precedes:«,nbsp:✗,trail:⌴
+" set listchars=tab:\▸\ ,eol:·,extends:»,precedes:«,nbsp:✗,trail:⌴
+set listchars=tab:\▸\ ,extends:»,precedes:«,nbsp:✗,trail:⌴
 set showbreak=↪
 
 " Show whitespace.
@@ -129,11 +133,11 @@ augroup mt_whitespace
     autocmd InsertLeave * :set listchars+=trail:⌴
 
     " Should probably be doing this sort of thing with ft plugin, indent et al...
-    " Use smaller tabs when editing a ruby file.
+    " Use 2-space tabs when editing a ruby file.
     autocmd Filetype ruby,yaml,haml,cucumber set ts=2 sts=2 sw=2 expandtab
 
     " Should probably be doing this sort of thing with ft plugin, indent et al...
-    " Use smaller tabs when editing a ruby file.
+    " Use 4-space tabs when editing an assembly file.
     autocmd Filetype asm set ts=4 sts=4 sw=4 expandtab
 
     " Seem to be getting the above in eruby too, which I don't want.
@@ -181,6 +185,11 @@ augroup mt_colouring
     autocmd FileType django set autoindent&
     autocmd FileType django set indentexpr&
 augroup END
+
+
+" Use bash instead of posix highlighting for .sh files.
+" See `:help ft-bash-syntax`.
+let g:is_bash = 1
 
 
 " ------------------------------------------------------------------------------
@@ -251,9 +260,12 @@ func! NextSection(backwards, sectionend, visual)
         normal! gv
     endif
 
+    " http://vimdoc.sourceforge.net/htmldoc/pattern.html#/\_^
     let pattern = '\_^\s*\n'
     let flags = 'W'
 
+    " http://vimdoc.sourceforge.net/htmldoc/pattern.html#/\%^
+    " http://vimdoc.sourceforge.net/htmldoc/pattern.html#/\%$
     if a:backwards
         let pattern = '(%^|' . pattern . ')'
         let flags = flags . 'b'
@@ -261,6 +273,7 @@ func! NextSection(backwards, sectionend, visual)
         let pattern = '(%$|' . pattern . ')'
     endif
 
+    " http://vimdoc.sourceforge.net/htmldoc/pattern.html#/\v
     if a:sectionend
         let pattern = '\v' . '\S[\s\n]*' . pattern
     else
@@ -268,6 +281,7 @@ func! NextSection(backwards, sectionend, visual)
         let flags = flags . 'e'
     endif
 
+    " http://vimdoc.sourceforge.net/htmldoc/eval.html#search()
     call search(pattern, flags)
 endf
 
@@ -312,11 +326,15 @@ endif
 
 " Shortcuts for saving & closing the current window.
 noremap <leader>w :update<cr>
+noremap <leader>s :update<cr>
 noremap <leader>W :write !sudo tee > /dev/null %<cr>
 noremap <leader>d :quit<cr>
 
 " Just a tiny bit quicker:
-noremap <leader>h :help<space>
+" noremap <leader>h :help<space>
+
+" Toggle search highlighting:
+noremap <leader>h :set hlsearch!<cr>
 
 " Edit or reload the current config.
 noremap <leader>v :vsplit $MYVIMRC<cr>
@@ -366,7 +384,7 @@ noremap <leader>= Yp^v$r=
 
 " Show syntax highlighting groups for word under cursor
 " See: http://vimcasts.org/episodes/creating-colorschemes-for-vim/
-nnoremap <leader>syn :call SynStack()<CR>
+" nnoremap <leader>syn :call SynStack()<CR>
 func! SynStack()
     if exists("*synstack")
         echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
@@ -394,11 +412,7 @@ endf
 noremap <leader>n :call ToggleNumbering()<cr>
 func! ToggleNumbering()
     if exists("+relativenumber")
-        if &relativenumber
-            set number
-        else
-            set relativenumber
-        endif
+        set relativenumber!
     else
         set number!
     endif
@@ -441,11 +455,11 @@ let g:SuperTabCrMapping = 0
 let html_no_rendering=1
 
 " Insert Python debug snippet.
-nnoremap <f9> Oimport ipdb; ipdb.set_trace()<esc>
-inoremap <f9> import ipdb; ipdb.set_trace()
+nnoremap <f9> Oimport pdb; pdb.set_trace()<esc>
+inoremap <f9> import pdb; pdb.set_trace()
 
-nnoremap <f10> Oimport pdb; pdb.set_trace()<esc>
-inoremap <f10> import pdb; pdb.set_trace()
+nnoremap <f10> Oimport ipdb; ipdb.set_trace()<esc>
+inoremap <f10> import ipdb; ipdb.set_trace()
 
 " Insert Python boilerplate.
 " func! LoadTemplate()

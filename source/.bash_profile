@@ -48,7 +48,7 @@ __prompt_path() {
 }
 
 __prompt_cwd() {
-    if (( $COLUMNS >= 100 ))
+    if (( $COLUMNS >= 120 ))
     then
         echo "\w"
     else
@@ -87,6 +87,10 @@ export EDITOR='vim'
 # export GOPATH='/Users/mtarbit/projects/_learning/go'
 # export CDPATH="$CDPATH:~/projects"
 export PATH="$PATH:$(go env GOPATH)/bin"
+
+# Don't timeout `pass -c` so quickly.
+# See /usr/local/bin/pass
+export PASSWORD_STORE_CLIP_TIME=300
 
 if [ -r "$(brew --prefix)/etc/bash_completion" ]; then
     . "$(brew --prefix)/etc/bash_completion"
@@ -130,7 +134,7 @@ fi
 alias 'll'='ls -l'
 alias 'ack'='ack --color-filename=green --color-match=yellow --ignore-file=ext:pyc'
 alias 'tmux'='tmux -2'
-alias 'dateslug'='date +"%Y-%m-%d.%I-%M"'
+alias 'date-slug'='date +"%Y-%m-%d_%H-%M"'
 alias 'whats-my-ip'='dig +short myip.opendns.com @resolver1.opendns.com'
 alias 'docker-exec'='docker-compose exec'
 alias 'docker-run'='docker-compose run --rm'
@@ -190,8 +194,37 @@ generate-md5s() {
     LC_ALL=C tr -cd '[:xdigit:]' < /dev/urandom | tr '[:upper:]' '[:lower:]' | fold -w${length} | head -n${number}
 }
 
+fix-sound() {
+    sudo pkill -f coreaudio[a-z]
+}
+
 rust-run() {
     rustc "$1.rs" --out-dir=/Users/mtarbit/tmp/rust-learning/bin && /Users/mtarbit/tmp/rust-learning/bin/"$1"
+}
+
+init-cpp-exercise() {
+    dir_name=$PWD
+    dir_name=${dir_name##*/}
+    dir_name=${dir_name//-/_}
+    touch "$dir_name".{h,cpp}
+    mkdir build
+    cmake -G "Unix Makefiles" -B build
+}
+
+test-cpp-exercise() {
+    make -C build
+}
+
+convert-video() {
+    file=$1
+    width=1280
+    ffmpeg -i "${file}" \
+        -codec:v h264 -codec:a aac \
+        -filter:v scale=${width}:-2 \
+        -profile:v baseline -level 3.0 \
+        -pix_fmt yuv420p \
+        -movflags +faststart \
+        -y "${file%.*}.new.mp4"
 }
 
 # # As instructed in rvm installer instructions:
@@ -204,6 +237,12 @@ rust-run() {
 # fi
 
 eval "$(rbenv init -)"
+
+# Added as instructed by pyenv docs (after `brew install pyenv`):
+# https://github.com/pyenv/pyenv#basic-github-checkout
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
 
 # ### Added by the Heroku Toolbelt
 # export PATH="/usr/local/heroku/bin:$PATH"

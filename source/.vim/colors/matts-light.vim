@@ -30,6 +30,7 @@ hi StatusLine   ctermfg=236 ctermbg=252
 hi StatusLineNC ctermfg=236 ctermbg=252
 hi Visual                   ctermbg=189
 hi MatchParen               ctermbg=189
+hi Search                   ctermbg=229
 hi SpecialKey   ctermfg=249 ctermbg=229
 hi WildMenu     ctermfg=236 ctermbg=148
 hi PMenu                    ctermbg=252
