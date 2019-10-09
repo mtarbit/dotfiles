@@ -28,3 +28,6 @@
 [submodule "source/.vim/bundle/vim-javascript"]
 	path = source/.vim/bundle/vim-javascript
 	url = https://github.com/pangloss/vim-javascript
+[submodule "source/.vim/bundle/python-syntax"]
+	path = source/.vim/bundle/python-syntax
+	url = https://github.com/vim-python/python-syntax.git
