@@ -38,7 +38,7 @@ hi PMenuSel     ctermfg=231 ctermbg=236
 
 " Source colors
 hi Boolean      ctermfg=69
-hi Comment      ctermfg=249
+hi Comment      ctermfg=249 cterm=italic
 hi Constant     ctermfg=19
 hi Directory    ctermfg=103
 hi Function     ctermfg=19
@@ -51,7 +51,7 @@ hi PreProc      ctermfg=91
 hi Special      ctermfg=103
 hi Statement    ctermfg=27
 hi String       ctermfg=126
-hi Todo         ctermfg=249 ctermbg=229
+hi Todo         ctermfg=249 ctermbg=229 cterm=italic
 hi Type         ctermfg=28
 
 " C-Specific
