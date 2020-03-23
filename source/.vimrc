@@ -99,6 +99,8 @@ augroup mt_general
     " Start in insert mode after opening a command window
     " (with Ctrl-F from cmdline or q:, q/, q? from normal mode).
     autocmd CmdwinEnter [:/?] startinsert
+
+    autocmd VimResized * execute "normal! \<c-w>="
 augroup END
 
 
