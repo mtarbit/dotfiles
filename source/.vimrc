@@ -139,8 +139,8 @@ augroup mt_whitespace
     autocmd Filetype ruby,yaml,haml,cucumber set ts=2 sts=2 sw=2 expandtab
 
     " Should probably be doing this sort of thing with ft plugin, indent et al...
-    " Use 4-space tabs when editing an assembly file.
-    autocmd Filetype asm set ts=4 sts=4 sw=4 expandtab
+    " Use 2-space tabs when editing an assembly file.
+    autocmd Filetype asm set ts=2 sts=2 sw=2 expandtab
 
     " Seem to be getting the above in eruby too, which I don't want.
     " autocmd Filetype eruby set ts=4 sts=4 sw=4 expandtab
