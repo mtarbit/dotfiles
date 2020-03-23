@@ -194,6 +194,13 @@ generate-md5s() {
     LC_ALL=C tr -cd '[:xdigit:]' < /dev/urandom | tr '[:upper:]' '[:lower:]' | fold -w${length} | head -n${number}
 }
 
+generate-ips() {
+    number=${1:-1}
+    for i in $(seq 1 $number); do
+        printf "%d.%d.%d.%d\n" "$((RANDOM % 256))" "$((RANDOM % 256))" "$((RANDOM % 256))" "$((RANDOM % 256))"
+    done
+}
+
 fix-sound() {
     sudo pkill -f coreaudio[a-z]
 }
