@@ -31,3 +31,6 @@
 [submodule "source/.vim/bundle/python-syntax"]
 	path = source/.vim/bundle/python-syntax
 	url = https://github.com/vim-python/python-syntax.git
+[submodule "source/.vim/bundle/typescript-vim"]
+	path = source/.vim/bundle/typescript-vim
+	url = https://github.com/leafgarland/typescript-vim.git
