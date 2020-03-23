@@ -205,6 +205,10 @@ fix-sound() {
     sudo pkill -f coreaudio[a-z]
 }
 
+usr-include-path() {
+    echo "$(xcrun --show-sdk-path)/usr/include"
+}
+
 rust-run() {
     rustc "$1.rs" --out-dir=/Users/mtarbit/tmp/rust-learning/bin && /Users/mtarbit/tmp/rust-learning/bin/"$1"
 }
