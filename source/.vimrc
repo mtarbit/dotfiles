@@ -218,6 +218,12 @@ noremap j gj
 noremap <up> g<up>
 noremap <down> g<down>
 
+" Move between splits without W-key when keyboard is misbehaving.
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
 " Easier start & end of line.
 noremap H ^
 nnoremap L $
