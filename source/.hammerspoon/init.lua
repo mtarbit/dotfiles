@@ -13,34 +13,11 @@
 -- Passwordstore interface.
 -- https://github.com/wosc/pass-autotype/blob/master/hammerspoon.lua
 --
--- Some kind of less obnoxious stretchly/break reminder?
---
 -- Desktop layout chooser (open usual apps in usual locations)
-
-
--- hs.hotkey.bind({"cmd", "alt", "ctrl"}, "W", function()
---     hs.notify.new({title="Hammerspoon", informativeText="Hello, World!"}):send()
--- end)
-
--- function resizeWindow(dx, dy, dw, dh)
---     local w = hs.window.focusedWindow()
---     local s = w:screen()
-
---     local wf = w:frame()
---     local sf = s:frame()
-
---     wf.x = (sf.w * dx) + sf.x
---     wf.y = (sf.h * dy) + sf.y
---     wf.w = (sf.w * dw)
---     wf.h = (sf.h * dh)
-
---     w:setFrame(wf, 0)
--- end
-
--- hs.hotkey.bind(hyper, "R", hs.reload)
--- hs.hotkey.bind(hyper, "H", function() hs.window.focusedWindow():moveToScreen(hs.window.focusedWindow():screen():previous(), false, true, 0) end)
--- hs.hotkey.bind(hyper, "L", function() hs.window.focusedWindow():moveToScreen(hs.window.focusedWindow():screen():next(), false, true, 0) end)
+-- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/util.lua
+-- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/layout.lua
 --
+-- Some kind of less obnoxious stretchly/break reminder?
 
 
 function watchConfig(files)
@@ -51,10 +28,10 @@ function watchConfig(files)
         end
     end
     if shouldReload then
+        hs.notify.new({title="Reloading", informativeText="Reloading hammerspoon config", autoWithdraw=true}):send()
         hs.reload()
     end
 end
-
 
 function resizeWindowTo(unitrect)
     hs.window.focusedWindow():moveToUnit(unitrect, 0)
@@ -69,7 +46,6 @@ function resizeWindowMid() resizeWindowTo(hs.geometry.unitrect(0.125, 0.125, 0.7
 
 function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true, 0) end
 function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true, 0) end
-
 
 watch = hs.pathwatcher.new(hs.configdir, watchConfig):start()
 
