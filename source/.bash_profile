@@ -209,6 +209,10 @@ usr-include-path() {
     echo "$(xcrun --show-sdk-path)/usr/include"
 }
 
+dict() {
+    open "dict://${1}"
+}
+
 man-opt() {
     # Open the man page for a command and jump to a particular option.
     # Note that `less -is` is default man pager according to `man man`.

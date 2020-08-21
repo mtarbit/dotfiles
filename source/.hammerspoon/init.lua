@@ -20,15 +20,66 @@
 -- Some kind of less obnoxious stretchly/break reminder?
 
 
+function searchDictionary()
+    -- This dictionary search isn't ideal because the initial suggestions come
+    -- from a unix word list rather than the actual data that Dictionary.app
+    -- uses for the word definition. It looks like that data might be stored in a
+    -- sqlite DB though, so it might be possible to get suggestions matching the
+    -- end result. Try "File > Open Dictionaries Folder" in Dicitonary.app.
+
+    local tab = nil
+
+    function chooserSelect(choice)
+        if tab then tab:delete() end
+        if choice ~= nil then
+            hs.urlevent.openURL("dict://" .. choice.text)
+        end
+    end
+
+    function chooserUpdate()
+        local query = chooser:query()
+
+        if string.len(query) < 2 then
+            chooser:choices({})
+            return
+        end
+
+        local choices = {}
+        local results = hs.execute("grep -i '^" .. query .. "' /usr/share/dict/words")
+
+        for s in results:gmatch("[^\r\n]+") do
+            table.insert(choices, {text = s})
+        end
+
+        chooser:choices(choices)
+    end
+
+    function chooserComplete()
+        local choice = chooser:selectedRowContents()
+        chooser:query(choice.text)
+        chooserUpdate()
+    end
+
+    tab = hs.hotkey.bind('', 'tab', chooserComplete)
+
+    chooser = hs.chooser.new(chooserSelect)
+    chooser:queryChangedCallback(chooserUpdate)
+    chooser:placeholderText("A dictionary word")
+    chooser:show()
+end
+
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "D", searchDictionary)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "/", hs.toggleConsole)
+
 function watchConfig(files)
-    shouldReload = false
+    local shouldReload = false
     for _, file in pairs(files) do
         if file:sub(-4) == ".lua" then
             shouldReload = true
         end
     end
     if shouldReload then
-        hs.notify.new({title="Reloading", informativeText="Reloading hammerspoon config", autoWithdraw=true}):send()
+        -- hs.notify.new({title="Reloading", informativeText="Reloading hammerspoon config", autoWithdraw=true}):send()
         hs.reload()
     end
 end
