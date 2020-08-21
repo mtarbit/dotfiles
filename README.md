@@ -19,4 +19,4 @@ If adapting for your own use, add dotfiles to `/source` and list them in the `Ma
 
 ### Acknowledgments
 
-The symlinking script was heavily inspired by / shamelessly ganked from [sensae/dotfiles](http://www.github.com/sensae/dotfiles). It just didn't seem right to fork, since the dotfiles themselves are all mine, and I've modified the script a fair bit.
+The symlinking script was heavily inspired by / shamelessly stolen from [sensae/dotfiles](http://www.github.com/sensae/dotfiles). It just didn't seem right to fork, since the dotfiles themselves are all mine, and I've modified the script a fair bit.

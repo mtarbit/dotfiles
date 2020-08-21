@@ -209,6 +209,18 @@ usr-include-path() {
     echo "$(xcrun --show-sdk-path)/usr/include"
 }
 
+man-opt() {
+    # Open the man page for a command and jump to a particular option.
+    # Note that `less -is` is default man pager according to `man man`.
+    # Use: `man-opt <command> <option>`
+    # e.g: `man-opt tar -t`
+    man -P "less -is -p '^ +${2}'" "${1}";
+}
+
+ssl-fingerprint() {
+    openssl x509 -noout -serial -in $1 | cut -d'=' -f2 | sed 's/../&:/g; s/:$//' # | tr '[:upper:]' '[:lower:]'
+}
+
 rust-run() {
     rustc "$1.rs" --out-dir=/Users/mtarbit/tmp/rust-learning/bin && /Users/mtarbit/tmp/rust-learning/bin/"$1"
 }
