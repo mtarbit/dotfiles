@@ -1,3 +1,4 @@
+
 -- Notes & ideas:
 --
 -- General reference for a simple chooser UI.
@@ -19,6 +20,10 @@
 --
 -- Some kind of less obnoxious stretchly/break reminder?
 
+
+-- ==================
+-- Dictionary lookups
+-- ==================
 
 function searchDictionary()
     -- This dictionary search isn't ideal because the initial suggestions come
@@ -68,8 +73,10 @@ function searchDictionary()
     chooser:show()
 end
 
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "D", searchDictionary)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "/", hs.toggleConsole)
+
+-- ==================
+-- Config auto-reload
+-- ==================
 
 function watchConfig(files)
     local shouldReload = false
@@ -79,14 +86,36 @@ function watchConfig(files)
         end
     end
     if shouldReload then
-        -- hs.notify.new({title="Reloading", informativeText="Reloading hammerspoon config", autoWithdraw=true}):send()
         hs.reload()
     end
 end
 
-function resizeWindowTo(unitrect)
-    hs.window.focusedWindow():moveToUnit(unitrect, 0)
+watch = hs.pathwatcher.new(hs.configdir, watchConfig):start()
+
+
+-- ==================
+-- Modal key mappings
+-- ==================
+
+k = hs.hotkey.modal.new('', '§')
+
+function keyBind(key, pressedfn)
+    k:bind('', key, function()
+        pressedfn()
+        k:exit()
+    end)
 end
+
+keyBind('escape', function() end)
+keyBind('D', searchDictionary)
+keyBind('/', hs.toggleConsole)
+
+
+-- ==================
+-- Window arrangement
+-- ==================
+
+function resizeWindowTo(unitrect) hs.window.focusedWindow():moveToUnit(unitrect, 0) end
 
 function resizeWindowL50() resizeWindowTo(hs.layout.left50) end
 function resizeWindowR50() resizeWindowTo(hs.layout.right50) end
@@ -98,27 +127,23 @@ function resizeWindowMid() resizeWindowTo(hs.geometry.unitrect(0.125, 0.125, 0.7
 function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true, 0) end
 function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true, 0) end
 
-watch = hs.pathwatcher.new(hs.configdir, watchConfig):start()
 
-hyper = {"cmd", "alt", "ctrl"}
-cmdAlt = {"cmd", "alt"}
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "h", moveWindowWest)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "l", moveWindowEast)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "k", resizeWindowMax)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "j", resizeWindowMid)
 
-hs.hotkey.bind(hyper, "H", moveWindowWest)
-hs.hotkey.bind(hyper, "L", moveWindowEast)
-hs.hotkey.bind(hyper, "K", resizeWindowMax)
-hs.hotkey.bind(hyper, "J", resizeWindowMid)
+hs.hotkey.bind({"cmd", "alt"}, "h", resizeWindowL50)
+hs.hotkey.bind({"cmd", "alt"}, "l", resizeWindowR50)
+hs.hotkey.bind({"cmd", "alt"}, "k", resizeWindowT50)
+hs.hotkey.bind({"cmd", "alt"}, "j", resizeWindowB50)
 
-hs.hotkey.bind(cmdAlt, "H", resizeWindowL50)
-hs.hotkey.bind(cmdAlt, "L", resizeWindowR50)
-hs.hotkey.bind(cmdAlt, "K", resizeWindowT50)
-hs.hotkey.bind(cmdAlt, "J", resizeWindowB50)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "left", moveWindowWest)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "right", moveWindowEast)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "up", resizeWindowMax)
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "down", resizeWindowMid)
 
-hs.hotkey.bind(hyper, "Left", moveWindowWest)
-hs.hotkey.bind(hyper, "Right", moveWindowEast)
-hs.hotkey.bind(hyper, "Up", resizeWindowMax)
-hs.hotkey.bind(hyper, "Down", resizeWindowMid)
-
-hs.hotkey.bind(cmdAlt, "Left", resizeWindowL50)
-hs.hotkey.bind(cmdAlt, "Right", resizeWindowR50)
-hs.hotkey.bind(cmdAlt, "Up", resizeWindowT50)
-hs.hotkey.bind(cmdAlt, "Down", resizeWindowB50)
+hs.hotkey.bind({"cmd", "alt"}, "left", resizeWindowL50)
+hs.hotkey.bind({"cmd", "alt"}, "right", resizeWindowR50)
+hs.hotkey.bind({"cmd", "alt"}, "up", resizeWindowT50)
+hs.hotkey.bind({"cmd", "alt"}, "down", resizeWindowB50)
