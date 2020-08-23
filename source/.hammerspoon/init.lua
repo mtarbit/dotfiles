@@ -13,6 +13,7 @@
 --
 -- Passwordstore interface.
 -- https://github.com/wosc/pass-autotype/blob/master/hammerspoon.lua
+-- https://github.com/CGenie/alfred-pass#setup
 --
 -- Desktop layout chooser (open usual apps in usual locations)
 -- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/util.lua
@@ -37,7 +38,7 @@ function searchDictionary()
     function chooserSelect(choice)
         if tab then tab:delete() end
         if choice ~= nil then
-            hs.urlevent.openURL("dict://" .. choice.text)
+            hs.urlevent.openURL('dict://' .. choice.text)
         end
     end
 
@@ -50,9 +51,9 @@ function searchDictionary()
         end
 
         local choices = {}
-        local results = hs.execute("grep -i '^" .. query .. "' /usr/share/dict/words")
+        local results = hs.execute('grep -i "^' .. query .. '" /usr/share/dict/words')
 
-        for s in results:gmatch("[^\r\n]+") do
+        for s in results:gmatch('[^\r\n]+') do
             table.insert(choices, {text = s})
         end
 
@@ -81,7 +82,7 @@ end
 function watchConfig(files)
     local shouldReload = false
     for _, file in pairs(files) do
-        if file:sub(-4) == ".lua" then
+        if file:sub(-4) == '.lua' then
             shouldReload = true
         end
     end
@@ -107,7 +108,7 @@ function keyBind(key, pressedfn)
 end
 
 keyBind('escape', function() end)
-keyBind('D', searchDictionary)
+keyBind('d', searchDictionary)
 keyBind('/', hs.toggleConsole)
 
 
@@ -115,7 +116,10 @@ keyBind('/', hs.toggleConsole)
 -- Window arrangement
 -- ==================
 
-function resizeWindowTo(unitrect) hs.window.focusedWindow():moveToUnit(unitrect, 0) end
+hs.window.animationDuration = 0
+hs.window.setFrameCorrectness = true
+
+function resizeWindowTo(unitrect) hs.window.focusedWindow():moveToUnit(unitrect) end
 
 function resizeWindowL50() resizeWindowTo(hs.layout.left50) end
 function resizeWindowR50() resizeWindowTo(hs.layout.right50) end
@@ -124,26 +128,134 @@ function resizeWindowB50() resizeWindowTo(hs.geometry.unitrect(0.0, 0.5, 1.0, 0.
 function resizeWindowMax() resizeWindowTo(hs.layout.maximized) end
 function resizeWindowMid() resizeWindowTo(hs.geometry.unitrect(0.125, 0.125, 0.75, 0.75)) end
 
-function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true, 0) end
-function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true, 0) end
+function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true) end
+function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true) end
 
 
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "h", moveWindowWest)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "l", moveWindowEast)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "k", resizeWindowMax)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "j", resizeWindowMid)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'h', moveWindowWest)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'l', moveWindowEast)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'k', resizeWindowMax)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'j', resizeWindowMid)
 
-hs.hotkey.bind({"cmd", "alt"}, "h", resizeWindowL50)
-hs.hotkey.bind({"cmd", "alt"}, "l", resizeWindowR50)
-hs.hotkey.bind({"cmd", "alt"}, "k", resizeWindowT50)
-hs.hotkey.bind({"cmd", "alt"}, "j", resizeWindowB50)
+hs.hotkey.bind({'cmd', 'alt'}, 'h', resizeWindowL50)
+hs.hotkey.bind({'cmd', 'alt'}, 'l', resizeWindowR50)
+hs.hotkey.bind({'cmd', 'alt'}, 'k', resizeWindowT50)
+hs.hotkey.bind({'cmd', 'alt'}, 'j', resizeWindowB50)
 
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "left", moveWindowWest)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "right", moveWindowEast)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "up", resizeWindowMax)
-hs.hotkey.bind({"cmd", "alt", "ctrl"}, "down", resizeWindowMid)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'left', moveWindowWest)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'right', moveWindowEast)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'up', resizeWindowMax)
+hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'down', resizeWindowMid)
 
-hs.hotkey.bind({"cmd", "alt"}, "left", resizeWindowL50)
-hs.hotkey.bind({"cmd", "alt"}, "right", resizeWindowR50)
-hs.hotkey.bind({"cmd", "alt"}, "up", resizeWindowT50)
-hs.hotkey.bind({"cmd", "alt"}, "down", resizeWindowB50)
+hs.hotkey.bind({'cmd', 'alt'}, 'left', resizeWindowL50)
+hs.hotkey.bind({'cmd', 'alt'}, 'right', resizeWindowR50)
+hs.hotkey.bind({'cmd', 'alt'}, 'up', resizeWindowT50)
+hs.hotkey.bind({'cmd', 'alt'}, 'down', resizeWindowB50)
+
+
+-- =======
+-- Layouts
+-- =======
+
+SCREEN_MACBOOK = 'Color LCD'
+SCREEN_DESKTOP = 'LG UltraFine'
+
+APP_ITERM  = 'iTerm2'
+APP_CHROME = 'Google Chrome'
+APP_MAIL   = 'Mail'
+APP_SLACK  = 'Slack'
+
+LAYOUT_DOCKED = {
+    {APP_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+}
+
+LAYOUT_LAPTOP = {
+    {APP_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+}
+
+function applyLayout(layout)
+    -- Unfortunately with my current version of Hammerspoon and macOS
+    -- I'm seeing inaccurate window-sizing when using hs.layout.apply
+    -- where some windows will stretch under the dock when maximized.
+    --
+    -- Possibly related:
+    -- https://github.com/Hammerspoon/hammerspoon/issues/408
+    --
+    -- This option appears to fix things at the expense of some ugly
+    -- jumping around as the windows resize. I'm just toggling it
+    -- here rather than turning it on permanently since resizing
+    -- via window:moveToUnit() seems to work okay.
+
+    function setFrameCorrectness(value)
+        -- Only need to do this when switching to the laptop layout
+        -- since it mainly seems to affect Chrome and iTerm and the
+        -- laptop's screen is the one with the dock.
+        if layout == LAYOUT_LAPTOP then
+            hs.window.setFrameCorrectness = value
+        end
+    end
+
+    setFrameCorrectness(true)
+    hs.layout.apply(layout)
+    setFrameCorrectness(false)
+end
+
+
+-- ==========
+-- Caffeinate
+-- ==========
+
+function toggleCaffeinate(modifiers, menuItem)
+    local enabled = hs.caffeinate.toggle('displayIdle')
+    if enabled then
+        hs.notify.new({title='Caffeinate', informativeText='Caffeinate on'}):send()
+    else
+        hs.notify.new({title='Caffeinate', informativeText='Caffeinate off'}):send()
+    end
+    menuItem.checked = enabled
+    menuBarUpdate()
+end
+
+
+-- ========
+-- Menu bar
+-- ========
+
+local menuBarMenu = nil
+local menuBarIcon = [[
+. . . . . . . . . . . . 3
+. . . . . . . . . . # # .
+. . 1 . . . . . # # # # .
+. . . # # . . # # # # . .
+. . . # # # 2 # # # # . .
+. . . 5 # # # # # 4 . . .
+. . . . . . . . . . . . .
+. . . B # # # # # 7 . . .
+. . # # # # 9 # # # . . .
+. . # # # # . . # # . . .
+. # # # # . . . . . 8 . .
+. # # . . . . . . . . . .
+A . . . . . . . . . . . .
+]]
+
+menuBar = hs.menubar.new()
+menuBar:setIcon('ASCII:' .. menuBarIcon)
+
+function menuBarUpdate()
+    menuBar:setMenu(menuBarMenu)
+end
+
+menuBarMenu = {
+  {title='Caffeinate', fn=toggleCaffeinate, checked=false},
+  {title='-'}, -- separator
+  {title='Layout: Docked', fn=function() applyLayout(LAYOUT_DOCKED) end},
+  {title='Layout: Laptop', fn=function() applyLayout(LAYOUT_LAPTOP) end},
+}
+
+menuBarUpdate()
