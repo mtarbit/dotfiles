@@ -7,6 +7,7 @@
 -- Look up word in dictionary or similar.
 -- https://github.com/nathancahill/Anycomplete/blob/master/anycomplete.lua
 -- https://github.com/pasiaj/Translate-for-Hammerspoon/blob/master/gtranslate.lua
+-- https://nshipster.com/dictionary-services/
 --
 -- Progressively resizable windows.
 -- https://github.com/miromannino/miro-windows-manager/blob/master/MiroWindowsManager.spoon/init.lua
@@ -19,7 +20,13 @@
 -- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/util.lua
 -- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/layout.lua
 --
+-- Project chooser
+-- Automate iTerm2 to open common arrangement of splits and tabs.
+-- Changing directories and triggering commands as needed.
+-- https://news.ycombinator.com/item?id=13050933
+--
 -- Some kind of less obnoxious stretchly/break reminder?
+-- https://gitlab.com/NickBusey/dotfiles/-/blob/master/hammerspoon/timers.lua
 
 
 -- ==================
@@ -91,7 +98,7 @@ function watchConfig(files)
     end
 end
 
-watch = hs.pathwatcher.new(hs.configdir, watchConfig):start()
+watcher = hs.pathwatcher.new(hs.configdir, watchConfig):start()
 
 
 -- ==================
@@ -117,7 +124,6 @@ keyBind('/', hs.toggleConsole)
 -- ==================
 
 hs.window.animationDuration = 0
-hs.window.setFrameCorrectness = true
 
 function resizeWindowTo(unitrect) hs.window.focusedWindow():moveToUnit(unitrect) end
 
@@ -130,17 +136,6 @@ function resizeWindowMid() resizeWindowTo(hs.geometry.unitrect(0.125, 0.125, 0.7
 
 function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true) end
 function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true) end
-
-
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'h', moveWindowWest)
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'l', moveWindowEast)
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'k', resizeWindowMax)
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'j', resizeWindowMid)
-
-hs.hotkey.bind({'cmd', 'alt'}, 'h', resizeWindowL50)
-hs.hotkey.bind({'cmd', 'alt'}, 'l', resizeWindowR50)
-hs.hotkey.bind({'cmd', 'alt'}, 'k', resizeWindowT50)
-hs.hotkey.bind({'cmd', 'alt'}, 'j', resizeWindowB50)
 
 hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'left', moveWindowWest)
 hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'right', moveWindowEast)
@@ -160,23 +155,23 @@ hs.hotkey.bind({'cmd', 'alt'}, 'down', resizeWindowB50)
 SCREEN_MACBOOK = 'Color LCD'
 SCREEN_DESKTOP = 'LG UltraFine'
 
-APP_ITERM  = 'iTerm2'
-APP_CHROME = 'Google Chrome'
-APP_MAIL   = 'Mail'
-APP_SLACK  = 'Slack'
+APP_NAME_ITERM  = 'iTerm2'
+APP_NAME_CHROME = 'Google Chrome'
+APP_NAME_MAIL   = 'Mail'
+APP_NAME_SLACK  = 'Slack'
 
-LAYOUT_DOCKED = {
-    {APP_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+APP_LAYOUT_DOCKED = {
+    {APP_NAME_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_NAME_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_NAME_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_NAME_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
-LAYOUT_LAPTOP = {
-    {APP_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+APP_LAYOUT_LAPTOP = {
+    {APP_NAME_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_NAME_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_NAME_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_NAME_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
 function applyLayout(layout)
@@ -204,6 +199,34 @@ function applyLayout(layout)
     setFrameCorrectness(true)
     hs.layout.apply(layout)
     setFrameCorrectness(false)
+end
+
+function launchApps()
+    local screens = hs.screen.allScreens()
+    local layout = nil
+
+    if #screens == 1 then
+        layout = APP_LAYOUT_LAPTOP
+    else
+        layout = APP_LAYOUT_DOCKED
+    end
+
+    -- Iterate through apps in reverse order and launch or focus so that the apps
+    -- at the top of the layout list are on top visually. Launch order seems to
+    -- be right but stacking order isn't. Looks like that's because launching takes
+    -- time whereas focusing is more or less instantaneous. So a launched app can
+    -- end up on top of an app which was focused after it was launched.
+    --
+    -- There isn't a convenient way to do callbacks so we only launch/focus the
+    -- next app after the previous one has finished launching/focusing. So maybe
+    -- we just use timer guesstimates instead? Might make things feel slow.
+
+    for i = #layout, 1, -1 do
+        local appName = layout[i][1]
+        hs.notify.new({title=appName, informativeText='Launching or focusing'}):send()
+        hs.application.launchOrFocus(appName)
+        hs.application.get(appName):activate(true)
+    end
 end
 
 
@@ -254,8 +277,12 @@ end
 menuBarMenu = {
   {title='Caffeinate', fn=toggleCaffeinate, checked=false},
   {title='-'}, -- separator
-  {title='Layout: Docked', fn=function() applyLayout(LAYOUT_DOCKED) end},
-  {title='Layout: Laptop', fn=function() applyLayout(LAYOUT_LAPTOP) end},
+  {title='Launch default apps', fn=launchApps},
+  {title='Layout: Docked', fn=function() applyLayout(APP_LAYOUT_DOCKED) end},
+  {title='Layout: Laptop', fn=function() applyLayout(APP_LAYOUT_LAPTOP) end},
+  {title='-'}, -- separator
+  {title='Hammerspoon: Reload config', fn=hs.reload},
+  {title='Hammerspoon: Open console', fn=hs.toggleConsole},
 }
 
 menuBarUpdate()
