@@ -152,26 +152,29 @@ hs.hotkey.bind({'cmd', 'alt'}, 'down', resizeWindowB50)
 -- Layouts
 -- =======
 
+-- Using bundle IDs rather than app names here because iTerm2 doesn't
+-- respond to the name that it returns via app:name() for some reason.
+
+APP_ID_ITERM  = 'com.googlecode.iterm2'
+APP_ID_CHROME = 'com.google.Chrome'
+APP_ID_MAIL   = 'com.apple.mail'
+APP_ID_SLACK  = 'com.tinyspeck.slackmacgap'
+
 SCREEN_MACBOOK = 'Color LCD'
 SCREEN_DESKTOP = 'LG UltraFine'
 
-APP_NAME_ITERM  = 'iTerm2'
-APP_NAME_CHROME = 'Google Chrome'
-APP_NAME_MAIL   = 'Mail'
-APP_NAME_SLACK  = 'Slack'
-
 APP_LAYOUT_DOCKED = {
-    {APP_NAME_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_NAME_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_NAME_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_NAME_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_ID_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
 APP_LAYOUT_LAPTOP = {
-    {APP_NAME_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_NAME_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_NAME_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_NAME_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
 function applyLayout(layout)
@@ -211,21 +214,12 @@ function launchApps()
         layout = APP_LAYOUT_DOCKED
     end
 
-    -- Iterate through apps in reverse order and launch or focus so that the apps
-    -- at the top of the layout list are on top visually. Launch order seems to
-    -- be right but stacking order isn't. Looks like that's because launching takes
-    -- time whereas focusing is more or less instantaneous. So a launched app can
-    -- end up on top of an app which was focused after it was launched.
-    --
-    -- There isn't a convenient way to do callbacks so we only launch/focus the
-    -- next app after the previous one has finished launching/focusing. So maybe
-    -- we just use timer guesstimates instead? Might make things feel slow.
+    -- Iterate through apps in reverse order, opening them and waiting for each one
+    -- to open so that the apps at the top of the layout list end up at the front.
 
     for i = #layout, 1, -1 do
-        local appName = layout[i][1]
-        hs.notify.new({title=appName, informativeText='Launching or focusing'}):send()
-        hs.application.launchOrFocus(appName)
-        hs.application.get(appName):activate(true)
+        local id = layout[i][1]
+        hs.application.open(id, 10, true)
     end
 end
 
