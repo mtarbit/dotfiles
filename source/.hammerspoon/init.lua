@@ -29,9 +29,9 @@
 -- https://gitlab.com/NickBusey/dotfiles/-/blob/master/hammerspoon/timers.lua
 
 
--- ==================
--- Dictionary lookups
--- ==================
+-- ==========
+-- Dictionary
+-- ==========
 
 function searchDictionary()
     -- This dictionary search isn't ideal because the initial suggestions come
@@ -52,7 +52,7 @@ function searchDictionary()
     function chooserUpdate()
         local query = chooser:query()
 
-        if string.len(query) < 2 then
+        if query:len() < 2 then
             chooser:choices({})
             return
         end
@@ -60,7 +60,7 @@ function searchDictionary()
         local choices = {}
         local results = hs.execute('grep -i "^' .. query .. '" /usr/share/dict/words')
 
-        for s in results:gmatch('[^\r\n]+') do
+        for s in results:gmatch('[^\n]+') do
             table.insert(choices, {text = s})
         end
 
@@ -78,6 +78,91 @@ function searchDictionary()
     chooser = hs.chooser.new(chooserSelect)
     chooser:queryChangedCallback(chooserUpdate)
     chooser:placeholderText("A dictionary word")
+    chooser:show()
+end
+
+
+-- =========
+-- Passwords
+-- =========
+
+function searchPasswords()
+    -- This doesn't work yet. The password options are listed correctly,
+    -- but it fails when trying to actually read the password info if a
+    -- pinentry-mac prompt for the master password is triggered.
+
+    local tab = nil
+    local choices = {}
+
+    function longestCommonPrefix(choices)
+        local length = math.huge
+        local result = ""
+        local charA, charB
+
+        -- Find the length of the shortest string.
+        for _, choice in pairs(choices) do
+            local n = choice.text:len()
+            if n < length then length = n end
+        end
+
+        -- Compare choices until we find a conflict.
+        for charIndex = 1, length do
+            charA = choices[1].text:sub(charIndex, charIndex)
+
+            for choiceIndex = 2, #choices do
+                charB = choices[choiceIndex].text:sub(charIndex, charIndex)
+                if charA ~= charB then
+                    return result
+                end
+            end
+
+            result = result .. charA
+        end
+
+        return result
+    end
+
+    function chooserSelect(choice)
+        if tab then tab:delete() end
+        if choice ~= nil then
+            hs.notify.new({title="Password selected", informativeText=choice.text}):send()
+            -- This doesn't work. Looks like HS isn't waiting for input.
+            -- local result, status = hs.execute("pass show -c x" .. choice.text)
+            -- local resultTitle = "Password " .. (status and "copied" or "copy failed")
+            -- hs.notify.new({title=resultTitle, informativeText=result}):send()
+        end
+    end
+
+    function chooserUpdate()
+        local query = chooser:query()
+        local path = os.getenv('HOME') .. '/.password-store'
+        local results = ''
+
+        if query:len() < 1 then
+            chooser:choices({})
+            return
+        end
+
+        results = hs.execute("find " .. path .. " -name '*.gpg' | sed 's|" .. path .. '/' .. "||' | grep '^" .. query .. "' | sort")
+        choices = {}
+
+        for s in results:gmatch('[^\n]+') do
+            table.insert(choices, {text = s:sub(0, -5)})
+        end
+
+        chooser:choices(choices)
+    end
+
+    function chooserComplete()
+        chooser:query(longestCommonPrefix(choices))
+        chooserUpdate()
+    end
+
+    tab = hs.hotkey.bind('', 'tab', chooserComplete)
+
+    chooser = hs.chooser.new(chooserSelect)
+    chooser:queryChangedCallback(chooserUpdate)
+    chooser:placeholderText("A password name")
     chooser:show()
 end
 
@@ -116,6 +201,7 @@ end
 
 keyBind('escape', function() end)
 keyBind('d', searchDictionary)
+-- keyBind('p', searchPasswords)
 keyBind('/', hs.toggleConsole)
 
 
