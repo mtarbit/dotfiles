@@ -39,7 +39,7 @@ function searchDictionary()
     -- from a unix word list rather than the actual data that Dictionary.app
     -- uses for the word definition. It looks like that data might be stored in a
     -- sqlite DB though, so it might be possible to get suggestions matching the
-    -- end result. Try "File > Open Dictionaries Folder" in Dicitonary.app.
+    -- end result. Try "File > Open Dictionaries Folder" in Dictionary.app.
 
     local tab = nil
 
@@ -87,9 +87,10 @@ end
 -- Passwords
 -- =========
 
-function searchPasswords()
+function searchPasswords(mode)
     local tab = nil
     local choices = {}
+    local webview = nil
 
     function longestCommonPrefix(choices)
         local length = math.huge
@@ -137,10 +138,50 @@ function searchPasswords()
             --
             -- Also, this uses a pbcopy pipeline instead of `pass show -c`
             -- because that seems to cause issues of its own (crash/beachball).
+            -- A side effect of this is that the clipboard won't automatically
+            -- be cleared, since `pass` usually handles that.
 
             hs.timer.doAfter(0.000001, function()
-                hs.execute('pass show ' .. label .. ' | head -1 | tr -d \'\n\' | pbcopy', true)
-                hs.notify.new({title="Password copied", informativeText=label}):send()
+                if mode == 'copy' then
+
+                    -- Copy the password to the clipboard.
+
+                    hs.execute('pass show ' .. label .. ' | head -1 | tr -d \'\n\' | pbcopy', true)
+                    hs.notify.new({title="Password copied", informativeText=label}):send()
+
+                elseif mode == 'show' then
+
+                    -- Show the contents of the password file in a window.
+
+                    local text = hs.execute('pass show ' .. label .. ' | tail +2', true)
+                    local html = hs.doc.markdown.convert(text)
+
+                    href = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css'
+                    html = '<link rel="stylesheet" href="' .. href .. '">'
+                        .. '<style>body { font-size: 90%; padding: 1em; }</style>'
+                        .. '<div class="markdown-body">' .. html .. '</div>'
+
+                    local frame = hs.screen.primaryScreen():frame()
+                    local rect = hs.geometry.unitrect(0.25, 0.25, 0.5, 0.5):fromUnitRect(frame)
+
+                    if webview then webview:delete() end
+
+                    focused = hs.window.focusedWindow()
+                    webview = hs.webview.newBrowser(rect)
+                    webview:shadow(true)
+                    webview:closeOnEscape(true)
+                    webview:deleteOnClose(true)
+                    webview:windowCallback(function(action, webview)
+                        if action == 'closing' then
+                            focused:focus()
+                        end
+                    end)
+
+                    webview:html(html)
+                    webview:show()
+                    webview:hswindow():focus()
+
+                end
             end)
         end
     end
@@ -379,5 +420,6 @@ hs.hotkey.bind(mush, 'up', resizeWindowT50)
 hs.hotkey.bind(mush, 'down', resizeWindowB50)
 
 hs.hotkey.bind(mash, 'd', searchDictionary)
-hs.hotkey.bind(mash, 'p', searchPasswords)
+hs.hotkey.bind(mash, 'p', function() searchPasswords('copy') end)
+hs.hotkey.bind(mush, 'p', function() searchPasswords('show') end)
 hs.hotkey.bind(mash, '/', hs.toggleConsole)
