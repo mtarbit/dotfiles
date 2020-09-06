@@ -88,9 +88,9 @@ export EDITOR='vim'
 # export CDPATH="$CDPATH:~/projects"
 export PATH="$PATH:$(go env GOPATH)/bin"
 
-# Don't timeout `pass -c` so quickly.
-# See /usr/local/bin/pass
-export PASSWORD_STORE_CLIP_TIME=300
+# Don't timeout `pass -c` so quickly (see /usr/local/bin/pass).
+# This timeout matches the cache-ttl in `.gnupg/gpg-agent.conf`.
+export PASSWORD_STORE_CLIP_TIME=7200
 
 if [ -r "$(brew --prefix)/etc/bash_completion" ]; then
     . "$(brew --prefix)/etc/bash_completion"

@@ -15,6 +15,7 @@
 -- Passwordstore interface.
 -- https://github.com/wosc/pass-autotype/blob/master/hammerspoon.lua
 -- https://github.com/CGenie/alfred-pass#setup
+-- https://brianschiller.com/blog/2016/08/31/gnu-pass-alfred
 --
 -- Desktop layout chooser (open usual apps in usual locations)
 -- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/util.lua
@@ -87,10 +88,6 @@ end
 -- =========
 
 function searchPasswords()
-    -- This doesn't work yet. The password options are listed correctly,
-    -- but it fails when trying to actually read the password info if a
-    -- pinentry-mac prompt for the master password is triggered.
-
     local tab = nil
     local choices = {}
 
@@ -107,7 +104,11 @@ function searchPasswords()
 
         -- Compare choices until we find a conflict.
         for charIndex = 1, length do
-            charA = choices[1].text:sub(charIndex, charIndex)
+            if choices[1] then
+                charA = choices[1].text:sub(charIndex, charIndex)
+            else
+                return result
+            end
 
             for choiceIndex = 2, #choices do
                 charB = choices[choiceIndex].text:sub(charIndex, charIndex)
@@ -125,11 +126,22 @@ function searchPasswords()
     function chooserSelect(choice)
         if tab then tab:delete() end
         if choice ~= nil then
-            hs.notify.new({title="Password selected", informativeText=choice.text}):send()
-            -- This doesn't work. Looks like HS isn't waiting for input.
-            -- local result, status = hs.execute("pass show -c x" .. choice.text)
-            -- local resultTitle = "Password " .. (status and "copied" or "copy failed")
-            -- hs.notify.new({title=resultTitle, informativeText=result}):send()
+            local label = choice.text
+
+            -- Note that this is a bit finicky. Calling the `pass` command will
+            -- trigger a pinentry dialog when needed, presuming pinentry-mac is
+            -- installed, and it looks like the hs.chooser steals focus back
+            -- from this dialog just after it's launched unless we add a small
+            -- delay to make sure that the command happens after the chooser is
+            -- closed instead of before.
+            --
+            -- Also, this uses a pbcopy pipeline instead of `pass show -c`
+            -- because that seems to cause issues of its own (crash/beachball).
+
+            hs.timer.doAfter(0.000001, function()
+                hs.execute('pass show ' .. label .. ' | head -1 | tr -d \'\n\' | pbcopy', true)
+                hs.notify.new({title="Password copied", informativeText=label}):send()
+            end)
         end
     end
 
@@ -139,22 +151,32 @@ function searchPasswords()
         local results = ''
 
         if query:len() < 1 then
-            chooser:choices({})
-            return
-        end
+            choices = {}
+        else
+            choices = {}
+            results = hs.execute("find " .. path .. " -name '*.gpg' | sed 's|" .. path .. '/' .. "||' | grep '^" .. query .. "' | sort")
 
-        results = hs.execute("find " .. path .. " -name '*.gpg' | sed 's|" .. path .. '/' .. "||' | grep '^" .. query .. "' | sort")
-        choices = {}
-
-        for s in results:gmatch('[^\n]+') do
-            table.insert(choices, {text = s:sub(0, -5)})
+            for s in results:gmatch('[^\n]+') do
+                table.insert(choices, {text = s:sub(0, -5)})
+            end
         end
 
         chooser:choices(choices)
     end
 
     function chooserComplete()
-        chooser:query(longestCommonPrefix(choices))
+        local prefix = longestCommonPrefix(choices)
+        local choice = chooser:selectedRowContents()
+        local query = chooser:query()
+
+        if prefix == chooser:query() then
+            -- If we've tab-completed the longest prefix already then
+            -- a 2nd tab-press should select the top item in the list.
+            chooser:query(choice.text)
+        else
+            chooser:query(prefix)
+        end
+
         chooserUpdate()
     end
 
@@ -187,25 +209,6 @@ watcher = hs.pathwatcher.new(hs.configdir, watchConfig):start()
 
 
 -- ==================
--- Modal key mappings
--- ==================
-
-k = hs.hotkey.modal.new('', '§')
-
-function keyBind(key, pressedfn)
-    k:bind('', key, function()
-        pressedfn()
-        k:exit()
-    end)
-end
-
-keyBind('escape', function() end)
-keyBind('d', searchDictionary)
--- keyBind('p', searchPasswords)
-keyBind('/', hs.toggleConsole)
-
-
--- ==================
 -- Window arrangement
 -- ==================
 
@@ -222,16 +225,6 @@ function resizeWindowMid() resizeWindowTo(hs.geometry.unitrect(0.125, 0.125, 0.7
 
 function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true) end
 function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true) end
-
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'left', moveWindowWest)
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'right', moveWindowEast)
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'up', resizeWindowMax)
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'down', resizeWindowMid)
-
-hs.hotkey.bind({'cmd', 'alt'}, 'left', resizeWindowL50)
-hs.hotkey.bind({'cmd', 'alt'}, 'right', resizeWindowR50)
-hs.hotkey.bind({'cmd', 'alt'}, 'up', resizeWindowT50)
-hs.hotkey.bind({'cmd', 'alt'}, 'down', resizeWindowB50)
 
 
 -- =======
@@ -366,3 +359,25 @@ menuBarMenu = {
 }
 
 menuBarUpdate()
+
+
+-- =================
+-- Keyboard mappings
+-- =================
+
+local mash = {'cmd', 'alt', 'ctrl'}
+local mush = {'cmd', 'alt'}
+
+hs.hotkey.bind(mash, 'left', moveWindowWest)
+hs.hotkey.bind(mash, 'right', moveWindowEast)
+hs.hotkey.bind(mash, 'up', resizeWindowMax)
+hs.hotkey.bind(mash, 'down', resizeWindowMid)
+
+hs.hotkey.bind(mush, 'left', resizeWindowL50)
+hs.hotkey.bind(mush, 'right', resizeWindowR50)
+hs.hotkey.bind(mush, 'up', resizeWindowT50)
+hs.hotkey.bind(mush, 'down', resizeWindowB50)
+
+hs.hotkey.bind(mash, 'd', searchDictionary)
+hs.hotkey.bind(mash, 'p', searchPasswords)
+hs.hotkey.bind(mash, '/', hs.toggleConsole)
