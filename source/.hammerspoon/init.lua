@@ -1,23 +1,25 @@
 
 -- Notes & ideas:
 --
--- General reference for a simple chooser UI.
+-- DONE: General reference for a simple chooser UI.
 -- https://gist.github.com/james2doyle/8cec2b2693f7909b36587327a85055d5
 --
--- Look up word in dictionary or similar.
+-- DONE(ish): Look up word in dictionary or similar.
 -- https://github.com/nathancahill/Anycomplete/blob/master/anycomplete.lua
 -- https://github.com/pasiaj/Translate-for-Hammerspoon/blob/master/gtranslate.lua
 -- https://nshipster.com/dictionary-services/
+-- https://discussions.apple.com/thread/6504132
+-- http://lua-users.org/lists/lua-l/2016-11/msg00200.html
 --
 -- Progressively resizable windows.
 -- https://github.com/miromannino/miro-windows-manager/blob/master/MiroWindowsManager.spoon/init.lua
 --
--- Passwordstore interface.
+-- DONE: Passwordstore interface.
 -- https://github.com/wosc/pass-autotype/blob/master/hammerspoon.lua
 -- https://github.com/CGenie/alfred-pass#setup
 -- https://brianschiller.com/blog/2016/08/31/gnu-pass-alfred
 --
--- Desktop layout chooser (open usual apps in usual locations)
+-- DONE: Desktop layout chooser (open usual apps in usual locations)
 -- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/util.lua
 -- https://github.com/anishathalye/dotfiles-local/blob/mac/hammerspoon/layout.lua
 --
@@ -78,7 +80,7 @@ function searchDictionary()
 
     chooser = hs.chooser.new(chooserSelect)
     chooser:queryChangedCallback(chooserUpdate)
-    chooser:placeholderText("A dictionary word")
+    chooser:placeholderText("Search for a word…")
     chooser:show()
 end
 
@@ -88,6 +90,11 @@ end
 -- =========
 
 function searchPasswords(mode)
+    -- This is a chooser interface for "Pass: The Standard Unix Password Manager"
+    -- so that I can avoid a common situation where I have a vestigial terminal
+    -- window or split hanging around just for accessing heavily used passwords.
+    -- https://www.passwordstore.org/
+
     local tab = nil
     local choices = {}
     local webview = nil
@@ -124,6 +131,43 @@ function searchPasswords(mode)
         return result
     end
 
+    function copyPassword(label, output)
+        local password, _ = output:gsub('\n', '')
+        hs.pasteboard.setContents(password)
+        hs.notify.new({title="Password copied", informativeText=label}):send()
+    end
+
+    function readFile(path)
+        local f = io.open(path, 'r')
+        local s = f:read('a')
+        f:close()
+        return s
+    end
+
+    function showPassword(label, output)
+        local unit = hs.geometry.unitrect(0.3, 0.2, 0.4, 0.6)
+        local rect = unit:fromUnitRect(hs.screen.primaryScreen():frame())
+        local html = '<style>' .. readFile('assets/show-password/style.css') .. '</style>'
+                  .. '<div class="markdown-body">' .. hs.doc.markdown.convert(output) .. '</div>'
+
+        if webview then webview:delete() end
+
+        focused = hs.window.focusedWindow()
+        webview = hs.webview.newBrowser(rect)
+        webview:shadow(true)
+        webview:closeOnEscape(true)
+        webview:deleteOnClose(true)
+        webview:windowCallback(function(action, webview)
+            if action == 'closing' then
+                focused:focus()
+            end
+        end)
+
+        webview:html(html)
+        webview:show()
+        webview:hswindow():focus()
+    end
+
     function chooserSelect(choice)
         if tab then tab:delete() end
         if choice ~= nil then
@@ -145,41 +189,20 @@ function searchPasswords(mode)
                 if mode == 'copy' then
 
                     -- Copy the password to the clipboard.
+                    local output, status = hs.execute('pass show ' .. label .. ' | head -1', true)
 
-                    hs.execute('pass show ' .. label .. ' | head -1 | tr -d \'\n\' | pbcopy', true)
-                    hs.notify.new({title="Password copied", informativeText=label}):send()
+                    if status ~= nil then
+                        copyPassword(label, output)
+                    end
 
                 elseif mode == 'show' then
 
                     -- Show the contents of the password file in a window.
+                    local output, status = hs.execute('pass show ' .. label .. ' | tail +2', true)
 
-                    local text = hs.execute('pass show ' .. label .. ' | tail +2', true)
-                    local html = hs.doc.markdown.convert(text)
-
-                    href = 'https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css'
-                    html = '<link rel="stylesheet" href="' .. href .. '">'
-                        .. '<style>body { font-size: 90%; padding: 1em; }</style>'
-                        .. '<div class="markdown-body">' .. html .. '</div>'
-
-                    local frame = hs.screen.primaryScreen():frame()
-                    local rect = hs.geometry.unitrect(0.25, 0.25, 0.5, 0.5):fromUnitRect(frame)
-
-                    if webview then webview:delete() end
-
-                    focused = hs.window.focusedWindow()
-                    webview = hs.webview.newBrowser(rect)
-                    webview:shadow(true)
-                    webview:closeOnEscape(true)
-                    webview:deleteOnClose(true)
-                    webview:windowCallback(function(action, webview)
-                        if action == 'closing' then
-                            focused:focus()
-                        end
-                    end)
-
-                    webview:html(html)
-                    webview:show()
-                    webview:hswindow():focus()
+                    if status ~= nil then
+                        showPassword(label, output)
+                    end
 
                 end
             end)
@@ -225,7 +248,7 @@ function searchPasswords(mode)
 
     chooser = hs.chooser.new(chooserSelect)
     chooser:queryChangedCallback(chooserUpdate)
-    chooser:placeholderText("A password name")
+    chooser:placeholderText("Search for a password…")
     chooser:show()
 end
 
