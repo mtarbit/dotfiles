@@ -1,0 +1,22 @@
+body {
+    color: #eaeaea;
+    background: black;
+    /* font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji; */
+    font-family: 'Merriweather', serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.break-reminder {
+    display: grid;
+    place-items: center;
+    height: 100%;
+}
+
+.break-reminder-text {
+    width: 50%;
+    font-size: 2em;
+    font-weight: 300;
+    text-align: center;
+}
