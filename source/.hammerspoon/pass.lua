@@ -72,7 +72,7 @@ local showPassword = function(label, output)
     webview:hswindow():focus()
 end
 
-local chooserSelect = function(choice)
+local chooserSelect = function(mode, choice)
     if tab then tab:delete() end
     if choice ~= nil then
         local label = choice.text
@@ -148,9 +148,9 @@ local chooserComplete = function()
     chooserUpdate()
 end
 
-function searchPasswords()
+function searchPasswords(mode)
     tab = hs.hotkey.bind('', 'tab', chooserComplete)
-    chooser = hs.chooser.new(chooserSelect)
+    chooser = hs.chooser.new(partial(chooserSelect, mode))
     chooser:queryChangedCallback(chooserUpdate)
     chooser:placeholderText("Search for a password…")
     chooser:show()
