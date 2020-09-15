@@ -1,23 +1,16 @@
-local webview = nil
+-- local webview = nil
+
 local enabled = true
-local debug = false
+local debug = true
 
-local isLongBreak = function(t) return t.sec == 0 and t.min % 60 == 0 end
-local isMiniBreak = function(t) return t.sec == 0 and t.min % 20 == 0 end
-
-local isWeekDay = function(t) return t.wday > 1 and t.wday < 7 end
-local isWeekDay = function(t) return true end
-local isWorkingHours = function(t) return t.hour > 9 and t.hour < 18 end
-
-local durations = {mini=20, long=300}
+local intervals = {mini=20, long=60}  -- Number of minutes between breaks.
+local durations = {mini=20, long=300} -- Number of seconds that a break lasts for.
+local notifyDue = {mini=10, long=30}  -- Number of seconds beforehand to show a notification.
 
 if debug then
-    -- Debug predicates:
-    local isLongBreak = function(t) return t.sec == 0 and t.min % 3 == 0 end
-    local isMiniBreak = function(t) return t.sec == 0 and t.min % 1 == 0 end
-
-    -- Debug durations:
-    local durations = {mini=2,  long=30}
+    intervals = {mini=intervals.mini/10, long=intervals.long/10}
+    durations = {mini=durations.mini/10, long=durations.long/10}
+    notifyDue = {mini=notifyDue.mini/10, long=notifyDue.long/10}
 end
 
 local suggestions = {
@@ -84,7 +77,50 @@ local suggestions = {
     }
 }
 
-local breakReminderShow = function(breakType)
+local isWeekDay = function(d) return d.wday > 1 and d.wday < 7 end
+local isWorkingHours = function(d) return d.hour > 9 and d.hour < 18 end
+
+if debug then
+    isWeekDay = function(d) return true end
+    isWorkingHours = function(d) return true end
+end
+
+local function breakNowTest(breakType, d)
+    n = intervals[breakType]
+    return d.sec == 0 and d.min % n == 0
+end
+
+local function breakDueTime(breakType, d)
+    t = os.time(d) + notifyDue[breakType]
+    d = os.date('*t', t)
+    return d
+end
+
+local function isLongBreakNow(d)
+    return breakNowTest('long', d)
+end
+
+local function isMiniBreakNow(d)
+    return breakNowTest('mini', d) and not breakNowTest('long', d)
+end
+
+local function isLongBreakDue(d)
+    return isLongBreakNow(breakDueTime('long', d))
+end
+
+local function isMiniBreakDue(d)
+    return isMiniBreakNow(breakDueTime('mini', d))
+end
+
+local function breakNotifyShow(breakType)
+    s, _ = breakType:gsub('^%l', string.upper)
+    n = notifyDue[breakType]
+    heading = 'Break reminder'
+    message = string.format('%s break due in %d seconds', s, n)
+    hs.notify.show(heading, '', message)
+end
+
+local function breakWindowShow(breakType)
     local textCount = #suggestions[breakType]
     local textIndex = math.random(textCount - 1)
     local text = suggestions[breakType][textIndex]
@@ -96,11 +132,10 @@ local breakReminderShow = function(breakType)
               .. '<style>' .. readFile('assets/breaks/style.css') .. '</style>'
               .. '<div class="break-reminder"><div class="break-reminder-text">' .. text .. '</div></div>'
 
-    if webview then
-        webview:delete()
-    end
-
-    hs.notify.show('Break reminder', '', 'Time to take a ' .. breakType .. ' break')
+    -- if webview ~= nil then
+    --     webview:delete()
+    --     webview = nil
+    -- end
 
     webview = hs.webview.new(rect)
     webview:deleteOnClose(true)
@@ -116,18 +151,41 @@ local breakReminderShow = function(breakType)
     end)
 end
 
-local breakReminderTest = function()
-    local t = os.date('*t')
+local function breakReminderTest()
+    local d = os.date('*t')
+    local n = function(b) if b then return 1 else return 0 end end
 
     if debug then
-        print(string.format('%02d:%02d:%02d', t.hour, t.min, t.sec), enabled, isWeekDay(t), isWorkingHours(t), isLongBreak(t), isMiniBreak(t))
+        print(string.format(
+            '%02d:%02d:%02d - %s %s %s %s %s %s %s - int: %d/%d, dur: %d/%d, not: %d/%d',
+            d.hour,
+            d.min,
+            d.sec,
+            n(enabled),
+            n(isWeekDay(d)),
+            n(isWorkingHours(d)),
+            n(isMiniBreakDue(d)),
+            n(isLongBreakDue(d)),
+            n(isMiniBreakNow(d)),
+            n(isLongBreakNow(d)),
+            intervals.mini,
+            intervals.long,
+            durations.mini,
+            durations.long,
+            notifyDue.mini,
+            notifyDue.long
+        ))
     end
 
-    if enabled and isWeekDay(t) and isWorkingHours(t) then
-        if isLongBreak(t) then
-            breakReminderShow('long')
-        elseif isMiniBreak(t) then
-            breakReminderShow('mini')
+    if enabled and isWeekDay(d) and isWorkingHours(d) then
+        if isLongBreakDue(d) then
+            breakNotifyShow('long')
+        elseif isMiniBreakDue(d) then
+            breakNotifyShow('mini')
+        elseif isLongBreakNow(d) then
+            breakWindowShow('long')
+        elseif isMiniBreakNow(d) then
+            breakWindowShow('mini')
         end
     end
 end
@@ -143,4 +201,5 @@ function toggleBreaks(modifiers, menuItem)
     menuBarUpdate()
 end
 
-hs.timer.doEvery(1, breakReminderTest)
+-- Take a ref so it doesn't get garbage collected.
+breakTimer = hs.timer.doEvery(1, breakReminderTest)
