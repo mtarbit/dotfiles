@@ -10,3 +10,8 @@ function partial(fn, arg)
         return fn(arg, ...)
     end
 end
+
+function template(s, t)
+    result, _ = s:gsub('{{%s*([^}]-)%s*}}', function(k) return t[k] end)
+    return result
+end

@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    padding: 0;
+    color: #808080;
+    background: black;
+    font-family: 'Merriweather', serif;
+    font-size: 110%;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* background: purple; */
+}
+
+.reminder-head {
+    /* background: red; */
+}
+
+.reminder-body .suggestion {
+    margin: 2rem 25%;
+    /* background: blue; */
+}
+
+.reminder-foot {
+    margin-top: 3rem;
+    /* background: green; */
+}
+
+.reminder-body .suggestion {
+    color: #eaeaea;
+    font-size: 2rem;
+    font-weight: 300;
+}
+
+.reminder-skip {
+    display: inline-block;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 0.9em;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.2rem 1.2rem;
+    border: 1px solid currentColor;
+    border-radius: 2rem;
+}

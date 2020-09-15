@@ -1,7 +1,7 @@
--- local webview = nil
+local webview = nil
 
 local enabled = true
-local debug = true
+local debug = false
 
 local intervals = {mini=20, long=60}  -- Number of minutes between breaks.
 local durations = {mini=20, long=300} -- Number of seconds that a break lasts for.
@@ -120,17 +120,25 @@ local function breakNotifyShow(breakType)
     hs.notify.show(heading, '', message)
 end
 
+local function breakSuggestion(breakType)
+    local n = #suggestions[breakType]
+    local i = math.random(n - 1)
+    return suggestions[breakType][i]
+end
+
 local function breakWindowShow(breakType)
-    local textCount = #suggestions[breakType]
-    local textIndex = math.random(textCount - 1)
-    local text = suggestions[breakType][textIndex]
-    local secs = durations[breakType]
+    local suggestion = breakSuggestion(breakType)
+    local duration = durations[breakType]
 
     local unit = hs.geometry.unitrect(0, 0, 1, 1)
     local rect = unit:fromUnitRect(hs.screen.find(SCREEN_MACBOOK):fullFrame())
-    local html = '<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">'
-              .. '<style>' .. readFile('assets/breaks/style.css') .. '</style>'
-              .. '<div class="break-reminder"><div class="break-reminder-text">' .. text .. '</div></div>'
+    local html = template(readFile('assets/breaks/index.html'), {
+        breaktype=breakType,
+        stylesheet=readFile('assets/breaks/main.css'),
+        javascript=readFile('assets/breaks/main.js'),
+        suggestion=suggestion,
+        duration=duration
+    })
 
     -- if webview ~= nil then
     --     webview:delete()
@@ -140,11 +148,14 @@ local function breakWindowShow(breakType)
     webview = hs.webview.new(rect)
     webview:deleteOnClose(true)
 
+    webview:allowTextEntry(true)
+    webview:allowGestures(true)
+
     webview:html(html)
     webview:show()
     webview:bringToFront(true)
 
-    hs.timer.doAfter(secs, function()
+    hs.timer.doAfter(duration, function()
         if webview then
             webview:delete()
         end
@@ -157,7 +168,7 @@ local function breakReminderTest()
 
     if debug then
         print(string.format(
-            '%02d:%02d:%02d - %s %s %s %s %s %s %s - int: %d/%d, dur: %d/%d, not: %d/%d',
+            '%02d:%02d:%02d - %s %s %s - %s %s / %s %s - int: %d/%d, dur: %d/%d, not: %d/%d',
             d.hour,
             d.min,
             d.sec,
@@ -165,8 +176,8 @@ local function breakReminderTest()
             n(isWeekDay(d)),
             n(isWorkingHours(d)),
             n(isMiniBreakDue(d)),
-            n(isLongBreakDue(d)),
             n(isMiniBreakNow(d)),
+            n(isLongBreakDue(d)),
             n(isLongBreakNow(d)),
             intervals.mini,
             intervals.long,
@@ -200,6 +211,12 @@ function toggleBreaks(modifiers, menuItem)
     menuItem.checked = enabled
     menuBarUpdate()
 end
+
+breakEvent = hs.urlevent.bind('breakWindowClose', function(eventName, params)
+    if webview ~= nil then
+        webview:delete()
+    end
+end)
 
 -- Take a ref so it doesn't get garbage collected.
 breakTimer = hs.timer.doEvery(1, breakReminderTest)
