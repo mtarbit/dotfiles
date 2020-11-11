@@ -1,8 +1,8 @@
 local mash = {'cmd', 'alt', 'ctrl'}
 local mush = {'cmd', 'alt'}
 
-hs.hotkey.bind(mash, 'left', moveWindowWest)
-hs.hotkey.bind(mash, 'right', moveWindowEast)
+hs.hotkey.bind(mash, 'left', moveWindowScreenPrev)
+hs.hotkey.bind(mash, 'right', moveWindowScreenNext)
 hs.hotkey.bind(mash, 'up', resizeWindowMax)
 hs.hotkey.bind(mash, 'down', resizeWindowMid)
 

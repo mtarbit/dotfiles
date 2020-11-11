@@ -9,5 +9,18 @@ function resizeWindowB50() resizeWindowTo(hs.geometry.unitrect(0.0, 0.5, 1.0, 0.
 function resizeWindowMax() resizeWindowTo(hs.layout.maximized) end
 function resizeWindowMid() resizeWindowTo(hs.geometry.unitrect(0.125, 0.125, 0.75, 0.75)) end
 
+-- Seems to have stopped working after a hammerspoon update?
 function moveWindowWest() hs.window.focusedWindow():moveOneScreenWest(false, true) end
 function moveWindowEast() hs.window.focusedWindow():moveOneScreenEast(false, true) end
+
+function moveWindowScreenPrev()
+    local w = hs.window.focusedWindow()
+    local s = w:screen():previous()
+    w:moveToScreen(s, false, true)
+end
+
+function moveWindowScreenNext()
+    local w = hs.window.focusedWindow()
+    local s = w:screen():next()
+    w:moveToScreen(s, false, true)
+end
