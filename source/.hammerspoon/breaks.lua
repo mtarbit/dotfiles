@@ -4,14 +4,18 @@ local enabled = true
 local debug = false
 
 local intervals = {mini=20, long=60}  -- Number of minutes between breaks.
-local durations = {mini=20, long=300} -- Number of seconds that a break lasts for.
+local durations = {mini=30, long=300} -- Number of seconds that a break lasts for.
 local notifyDue = {mini=10, long=30}  -- Number of seconds beforehand to show a notification.
 
-if debug then
-    intervals = {mini=intervals.mini/10, long=intervals.long/10}
-    durations = {mini=durations.mini/10, long=durations.long/10}
-    notifyDue = {mini=notifyDue.mini/10, long=notifyDue.long/10}
-end
+-- if debug then
+--     intervals = {mini=intervals.mini/10, long=intervals.long/10}
+--     durations = {mini=durations.mini/10, long=durations.long/10}
+--     notifyDue = {mini=notifyDue.mini/10, long=notifyDue.long/10}
+-- end
+
+closeEvent = nil
+closeTimer = nil
+breakTimer = nil
 
 local suggestions = {
 
@@ -155,7 +159,8 @@ local function breakWindowShow(breakType)
     webview:show()
     webview:bringToFront(true)
 
-    hs.timer.doAfter(duration, function()
+    -- Take a reference to avoid garbage collection.
+    closeTimer = hs.timer.doAfter(duration, function()
         if webview then
             webview:delete()
         end
@@ -218,5 +223,9 @@ breakEvent = hs.urlevent.bind('breakWindowClose', function(eventName, params)
     end
 end)
 
--- Take a ref so it doesn't get garbage collected.
+-- Take a reference to avoid garbage collection.
 breakTimer = hs.timer.doEvery(1, breakReminderTest)
+
+if debug then
+    breakWindowShow('long')
+end

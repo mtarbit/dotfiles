@@ -38,6 +38,11 @@ body {
     font-weight: 300;
 }
 
+.reminder-body .progress .secs {
+    display: inline-block;
+    width: 1.5em;
+}
+
 .reminder-skip {
     display: inline-block;
     font-family: 'Roboto', sans-serif;
