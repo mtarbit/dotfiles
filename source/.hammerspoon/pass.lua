@@ -54,13 +54,15 @@ local showPassword = function(label, output)
     local html = '<style>' .. readFile('assets/pass/style.css') .. '</style>'
               .. '<div class="markdown-body">' .. hs.doc.markdown.convert(output) .. '</div>'
 
-    if webview then webview:delete() end
+    if webview ~= nil then
+        webview:delete()
+        webview = nil
+    end
 
     focused = hs.window.focusedWindow()
     webview = hs.webview.newBrowser(rect)
     webview:shadow(true)
     webview:closeOnEscape(true)
-    webview:deleteOnClose(true)
     webview:windowCallback(function(action, webview)
         if action == 'closing' then
             focused:focus()
@@ -137,14 +139,15 @@ local chooserComplete = function()
     local choice = chooser:selectedRowContents()
     local query = chooser:query()
 
-    if prefix == chooser:query() then
-        -- If we've tab-completed the longest prefix already then
-        -- a 2nd tab-press should select the top item in the list.
-        chooser:query(choice.text)
-    else
-        chooser:query(prefix)
-    end
+    -- if prefix == chooser:query() then
+    --     -- If we've tab-completed the longest prefix already then
+    --     -- a 2nd tab-press should select the top item in the list.
+    --     chooser:query(choice.text)
+    -- else
+    --     chooser:query(prefix)
+    -- end
 
+    chooser:query(prefix)
     chooserUpdate()
 end
 
