@@ -24,7 +24,7 @@ menuBarMenu = {
   {title='Caffeinate', fn=toggleCaffeinate, checked=false},
   {title='-'}, -- separator
   {title='Launch default apps', fn=launchApps},
-  {title='Layout: Docked', fn=function() applyLayout(APP_LAYOUT_DOCKED) end},
+  {title='Layout: Desktop', fn=function() applyLayout(APP_LAYOUT_DESKTOP) end},
   {title='Layout: Laptop', fn=function() applyLayout(APP_LAYOUT_LAPTOP) end},
   {title='-'}, -- separator
   {title='Hammerspoon: Reload config', fn=hs.reload},

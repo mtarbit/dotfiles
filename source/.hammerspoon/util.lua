@@ -12,6 +12,12 @@ function partial(fn, arg)
 end
 
 function template(s, t)
-    result, _ = s:gsub('{{%s*([^}]-)%s*}}', function(k) return t[k] end)
+    local pattern = '{{%s*([^}]-)%s*}}'
+    local replace = function(k) return tostring(t[k]) end
+    local result, _ = s:gsub(pattern, replace)
     return result
+end
+
+function runAppleScript(s, t)
+    hs.osascript.applescript(template(s, t))
 end

@@ -9,7 +9,7 @@ APP_ID_SLACK  = 'com.tinyspeck.slackmacgap'
 SCREEN_MACBOOK = 'Color LCD'
 SCREEN_DESKTOP = 'LG UltraFine'
 
-APP_LAYOUT_DOCKED = {
+APP_LAYOUT_DESKTOP = {
     {APP_ID_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
@@ -23,7 +23,60 @@ APP_LAYOUT_LAPTOP = {
     {APP_ID_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
-function applyLayout(layout)
+function setBluetoothState(value)
+    -- It was a trial and error process getting this to work and still seems
+    -- like it'll be flakey. If it causes much more difficulty then it might
+    -- be best to try this instead: https://github.com/toy/blueutil
+
+    local button
+    local result
+
+    if value then
+        button = 'Turn Bluetooth On'
+        result = 'Bluetooth: On'
+    else
+        button = 'Turn Bluetooth Off'
+        result = 'Bluetooth: Off'
+    end
+
+    runAppleScript([[
+        tell application "System Preferences"
+            set current pane to pane "com.apple.preferences.Bluetooth"
+
+            tell application "System Events"
+                tell process "System Preferences"
+                    try
+
+                        -- First click the button.
+                        click button "{{ button }}" of window "Bluetooth"
+
+                        -- But then repeatedly check if the label has changed before quitting
+                        -- or there might be no effect, especially when turning bluetooth off.
+                        repeat while true
+                            try
+                                select static text "{{ result }}" of window "Bluetooth"
+                                exit repeat
+                            end try
+                        end repeat
+
+                    end try
+                end tell
+            end tell
+
+            quit
+        end tell
+    ]], {button=button, result=result})
+end
+
+function setDockAutoHiding(value)
+    runAppleScript([[
+        tell app "System Events"
+            set autohide of dock preferences to {{ value }}
+        end tell
+    ]], {value=value})
+end
+
+function setFrameCorrectness(value)
     -- Unfortunately with my current version of Hammerspoon and macOS
     -- I'm seeing inaccurate window-sizing when using hs.layout.apply
     -- where some windows will stretch under the dock when maximized.
@@ -36,15 +89,18 @@ function applyLayout(layout)
     -- here rather than turning it on permanently since resizing
     -- via window:moveToUnit() seems to work okay.
 
-    function setFrameCorrectness(value)
-        -- Only need to do this when switching to the laptop layout
-        -- since it mainly seems to affect Chrome and iTerm and the
-        -- laptop's screen is the one with the dock.
-        if layout == LAYOUT_LAPTOP then
-            hs.window.setFrameCorrectness = value
-        end
-    end
+    -- Only need to do this when switching to the laptop layout
+    -- since it mainly seems to affect Chrome and iTerm and the
+    -- laptop's screen is the one with the dock.
 
+    if layout == APP_LAYOUT_LAPTOP then
+        hs.window.setFrameCorrectness = value
+    end
+end
+
+function applyLayout(layout)
+    setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
+    setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
     setFrameCorrectness(true)
     hs.layout.apply(layout)
     setFrameCorrectness(false)
@@ -57,7 +113,7 @@ function launchApps()
     if #screens == 1 then
         layout = APP_LAYOUT_LAPTOP
     else
-        layout = APP_LAYOUT_DOCKED
+        layout = APP_LAYOUT_DESKTOP
     end
 
     -- Iterate through apps in reverse order, opening them and waiting for each one
