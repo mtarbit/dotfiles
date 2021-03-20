@@ -63,15 +63,17 @@ local showPassword = function(label, output)
     webview = hs.webview.newBrowser(rect)
     webview:shadow(true)
     webview:closeOnEscape(true)
-    webview:windowCallback(function(action, webview)
-        if action == 'closing' then
-            focused:focus()
-        end
-    end)
+    -- webview:windowCallback(function(action, webview)
+    --     if action == 'closing' then
+    --         focused:focus()
+    --     end
+    -- end)
 
     webview:html(html)
     webview:show()
-    webview:hswindow():focus()
+    -- webview:hswindow():raise()
+    -- webview:hswindow():focus()
+    webview:bringToFront()
 end
 
 local chooserSelect = function(mode, choice)

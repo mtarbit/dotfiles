@@ -12,6 +12,7 @@ hs.hotkey.bind(mush, 'up', resizeWindowT50)
 hs.hotkey.bind(mush, 'down', resizeWindowB50)
 
 hs.hotkey.bind(mash, 'd', searchDictionary)
+hs.hotkey.bind(mush, 'd', searchDictionary)
 hs.hotkey.bind(mash, 'p', function() searchPasswords('copy') end)
 hs.hotkey.bind(mush, 'p', function() searchPasswords('show') end)
 hs.hotkey.bind(mash, 'r', hs.reload)

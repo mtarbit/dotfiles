@@ -276,3 +276,8 @@ fi
 
 # Added by the Rust installer on 2018-08-05.
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# Include keg-only brew mysql in path on 2020-11-14
+# (need to specify paths to mysql because the default brew mysql is
+# now 8.0 which doesn't match what I need to use for some projects)
+export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"

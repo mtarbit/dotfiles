@@ -30,7 +30,7 @@
 -- Maybe better to handle this in Python than in Hammerspoon:
 -- https://gitlab.com/gnachman/iterm2/-/issues/2304#note_161983594
 --
--- Some kind of less obnoxious stretchly/break reminder?
+-- DONE(ish): Some kind of less obnoxious stretchly/break reminder?
 -- https://gitlab.com/NickBusey/dotfiles/-/blob/master/hammerspoon/timers.lua
 
 require('util')
