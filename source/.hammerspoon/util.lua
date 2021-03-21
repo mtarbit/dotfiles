@@ -18,6 +18,10 @@ function template(s, t)
     return result
 end
 
+function runJavaScript(s, t)
+    return hs.osascript.javascript(template(s, t))
+end
+
 function runAppleScript(s, t)
-    hs.osascript.applescript(template(s, t))
+    return hs.osascript.applescript(template(s, t))
 end

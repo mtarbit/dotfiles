@@ -24,55 +24,49 @@ APP_LAYOUT_LAPTOP = {
 }
 
 function setBluetoothState(value)
-    -- It was a trial and error process getting this to work and still seems
-    -- like it'll be flakey. If it causes much more difficulty then it might
-    -- be best to try this instead: https://github.com/toy/blueutil
-
-    local button
-    local result
+    local action
 
     if value then
-        button = 'Turn Bluetooth On'
-        result = 'Bluetooth: On'
+        action = 'Turn Bluetooth On'
     else
-        button = 'Turn Bluetooth Off'
-        result = 'Bluetooth: Off'
+        action = 'Turn Bluetooth Off'
     end
 
-    runAppleScript([[
-        tell application "System Preferences"
-            set current pane to pane "com.apple.preferences.Bluetooth"
+    runJavaScript([[
 
-            tell application "System Events"
-                tell process "System Preferences"
-                    try
+        let systemEvents = Application("System Events");
+        let systemUiServer = systemEvents.applicationProcesses["SystemUIServer"];
 
-                        -- First click the button.
-                        click button "{{ button }}" of window "Bluetooth"
+        let menuBarItem, menuItem;
 
-                        -- But then repeatedly check if the label has changed before quitting
-                        -- or there might be no effect, especially when turning bluetooth off.
-                        repeat while true
-                            try
-                                select static text "{{ result }}" of window "Bluetooth"
-                                exit repeat
-                            end try
-                        end repeat
+        try {
 
-                    end try
-                end tell
-            end tell
+            // Click the menu-bar item for Bluetooth.
+            menuBarItem = systemUiServer.menuBars[0].menuBarItems.whose({description: "bluetooth"}).first();
+            menuBarItem.click();
 
-            quit
-        end tell
-    ]], {button=button, result=result})
+            // Click the menu item to toggle state.
+            try {
+                menuItem = menuBarItem.menus[0].menuItems.whose({title: "{{ action }}"}).first();
+                menuItem.click();
+            } catch (e) {
+                if (e.message != "Invalid index.") throw e;
+                // Send escape key-code to close menu.
+                systemEvents.keyCode(53);
+            }
+
+        } catch (e) {
+            if (e.message != "Invalid index.") throw e;
+            // Bluetooth menu-bar item is disabled.
+        }
+
+    ]], {action=action})
 end
 
 function setDockAutoHiding(value)
-    runAppleScript([[
-        tell app "System Events"
-            set autohide of dock preferences to {{ value }}
-        end tell
+    runJavaScript([[
+        system = Application("System Events");
+        system.dockPreferences.autohide = {{ value }};
     ]], {value=value})
 end
 
