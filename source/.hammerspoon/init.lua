@@ -8,6 +8,7 @@
 -- https://github.com/nathancahill/Anycomplete/blob/master/anycomplete.lua
 -- https://github.com/pasiaj/Translate-for-Hammerspoon/blob/master/gtranslate.lua
 -- https://nshipster.com/dictionary-services/
+-- https://apple.stackexchange.com/questions/337837/macos-mojave-dictionary-app-how-to-install-dictionaries-to-offline-computer
 -- https://discussions.apple.com/thread/6504132
 -- http://lua-users.org/lists/lua-l/2016-11/msg00200.html
 --

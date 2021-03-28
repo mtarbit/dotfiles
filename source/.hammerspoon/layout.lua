@@ -1,3 +1,6 @@
+SCREEN_MACBOOK = 'Color LCD'
+SCREEN_DESKTOP = 'LG UltraFine'
+
 -- Using bundle IDs rather than app names here because iTerm2 doesn't
 -- respond to the name that it returns via app:name() for some reason.
 
@@ -5,9 +8,6 @@ APP_ID_ITERM  = 'com.googlecode.iterm2'
 APP_ID_CHROME = 'com.google.Chrome'
 APP_ID_MAIL   = 'com.apple.mail'
 APP_ID_SLACK  = 'com.tinyspeck.slackmacgap'
-
-SCREEN_MACBOOK = 'Color LCD'
-SCREEN_DESKTOP = 'LG UltraFine'
 
 APP_LAYOUT_DESKTOP = {
     {APP_ID_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
@@ -22,6 +22,23 @@ APP_LAYOUT_LAPTOP = {
     {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
+
+function screenWatcherFn()
+    -- Switch layouts when number of screens changes.
+    local screens = hs.screen.allScreens()
+    if #screens ~= #currentScreens then
+        currentScreens = screens
+        if #screens == 1 then
+            applyLayout(APP_LAYOUT_LAPTOP)
+        else
+            applyLayout(APP_LAYOUT_DESKTOP)
+        end
+    end
+end
+
+currentScreens = hs.screen.allScreens()
+screenWatcher = hs.screen.watcher.new(screenWatcherFn)
+screenWatcher:start()
 
 function setBluetoothState(value)
     local action
@@ -94,10 +111,10 @@ end
 
 function applyLayout(layout)
     setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
-    setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
     setFrameCorrectness(true)
     hs.layout.apply(layout)
     setFrameCorrectness(false)
+    setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
 end
 
 function launchApps()

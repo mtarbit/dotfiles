@@ -1,4 +1,4 @@
-local watchConfig = function(files)
+function configWatcherFn(files)
     local shouldReload = false
     for _, file in pairs(files) do
         if file:sub(-4) == '.lua' then
@@ -10,4 +10,5 @@ local watchConfig = function(files)
     end
 end
 
-watcher = hs.pathwatcher.new(hs.configdir, watchConfig):start()
+configWatcher = hs.pathwatcher.new(hs.configdir, configWatcherFn)
+configWatcher:start()
