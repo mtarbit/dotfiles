@@ -221,6 +221,13 @@ man-opt() {
     man -P "less -is -p '^ +${2}'" "${1}";
 }
 
+brew-installed() {
+    brew info "${1}" | \
+    grep "Not installed" > /dev/null \
+    && echo "not-installed" \
+    || echo "installed"
+}
+
 ssl-fingerprint() {
     openssl x509 -noout -serial -in $1 | cut -d'=' -f2 | sed 's/../&:/g; s/:$//' # | tr '[:upper:]' '[:lower:]'
 }
