@@ -1,6 +1,6 @@
 local webview = nil
 
-local enabled = true
+local enabled = false
 local debug = false
 
 local intervals = {mini=20, long=60}  -- Number of minutes between breaks.
