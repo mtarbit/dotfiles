@@ -67,6 +67,9 @@ set formatoptions+=j
 " vim to base the filename on the full path of the original to avoid conflicts.
 set directory=~/.vim/tmp/swap//
 
+" Use solid lines for folds and vertical splits.
+set fillchars=fold:─,vert:│
+
 " Configure the status line unless we're using the powerline plugin.
 if !exists('g:Powerline_loaded') || !g:Powerline_loaded
     " Always show a status line above the command prompt.
@@ -163,16 +166,18 @@ augroup END
 " Use fancy colours.
 set t_Co=256
 
-" On a light background
-set background=light
-
 " Turn on syntax-highlighing.
 syntax on
 
 " Worthwhile schemes: elflord, molokai, mustang, matts-mustang, matts-light
-" colorscheme matts-mustang
-" colorscheme matts-darkside
-colorscheme matts-light
+if !$COLORFGBG || split($COLORFGBG, ';')[0] == '0'
+    set background=light
+    colorscheme matts-light
+else
+    set background=dark
+    " colorscheme matts-mustang
+    colorscheme matts-darkside
+endif
 
 " Briefly highlight matching bracket when completing a pair
 set showmatch
