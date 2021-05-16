@@ -29,10 +29,10 @@ export HISTCONTROL=ignoredups:ignorespace
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_STATESEPARATOR=':'
 
-__prompt_time() {
-    # Looks wacky when the screen is resized.
-    # echo "${WHT_CLR}\[\e[s\]\[\e[\$((COLUMNS-5))C\]\$(date +%H:%M)\[\e[u\]${NON_CLR}"
-    echo " ${CYN_CLR}at${NON_CLR} ${CYN_CLR}$(date +%H:%M)${NON_CLR}"
+__prompt_title() {
+    # https://wiki.archlinux.org/title/Bash/Prompt_customization#Bash_escape_sequences
+    # https://serverfault.com/questions/23978/how-can-one-set-a-terminals-title-with-the-tput-command
+    echo "\[$(tput tsl)\W$(tput fsl)\]"
 }
 
 __prompt_user() {
@@ -44,10 +44,10 @@ __prompt_host() {
 }
 
 __prompt_path() {
-    echo " ${CYN_CLR}in${NON_CLR} ${BLU_CLR}$(__prompt_cwd)${NON_CLR}${CYN_CLR}$(__prompt_branch)$(__prompt_venv)${NON_CLR}"
+    echo " ${CYN_CLR}in${NON_CLR} ${BLU_CLR}$(__prompt_path_cwd)${NON_CLR}${CYN_CLR}$(__prompt_path_branch)$(__prompt_path_venv)${NON_CLR}"
 }
 
-__prompt_cwd() {
+__prompt_path_cwd() {
     if (( $COLUMNS >= 120 ))
     then
         echo "\w"
@@ -56,14 +56,20 @@ __prompt_cwd() {
     fi
 }
 
-__prompt_branch() {
+__prompt_path_branch() {
     echo "$(__git_ps1 " [%s]" 2> /dev/null)"
 }
 
-__prompt_venv() {
+__prompt_path_venv() {
     if [[ $VIRTUAL_ENV != '' ]]; then
         echo " ($(basename "$VIRTUAL_ENV"))"
     fi
+}
+
+__prompt_time() {
+    # Looks wacky when the screen is resized.
+    # echo "${WHT_CLR}\[\e[s\]\[\e[\$((COLUMNS-5))C\]\$(date +%H:%M)\[\e[u\]${NON_CLR}"
+    echo " ${CYN_CLR}at${NON_CLR} ${CYN_CLR}$(date +%H:%M)${NON_CLR}"
 }
 
 __prompt_status() {
@@ -77,7 +83,7 @@ __prompt_status() {
 
 __prompt() {
     export STATUS=$?
-    export PS1="$(__prompt_user)$(__prompt_host)$(__prompt_path)$(__prompt_time)\n$(__prompt_status) "
+    export PS1="$(__prompt_title)$(__prompt_user)$(__prompt_host)$(__prompt_path)$(__prompt_time)\n$(__prompt_status) "
     export PS2="${PROMPT_CONT} "
 }
 
