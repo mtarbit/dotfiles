@@ -32,7 +32,13 @@ export GIT_PS1_STATESEPARATOR=':'
 __prompt_title() {
     # https://wiki.archlinux.org/title/Bash/Prompt_customization#Bash_escape_sequences
     # https://serverfault.com/questions/23978/how-can-one-set-a-terminals-title-with-the-tput-command
-    echo "\[$(tput tsl)\W$(tput fsl)\]"
+
+    # The `tput tsl` call here returns `\e]2;` which works in Kitty but not iTerm.
+    # Not sure why that is, but I found this `\e]0;` version in the default Ubuntu
+    # .bashrc and it seems to work in both.
+
+    # echo "\[$(tput tsl)\W$(tput fsl)\]"
+    echo "\[\e]0;\W\a\]"
 }
 
 __prompt_user() {
@@ -48,7 +54,7 @@ __prompt_path() {
 }
 
 __prompt_path_cwd() {
-    if (( $COLUMNS >= 120 ))
+    if (( $COLUMNS > 125 ))
     then
         echo "\w"
     else
@@ -91,7 +97,7 @@ export PROMPT_COMMAND=__prompt
 
 export EDITOR='vim'
 # export GOPATH='/Users/mtarbit/projects/_learning/go'
-# export CDPATH="$CDPATH:~/projects"
+export CDPATH="$CDPATH:.:~:~/projects:~/projects/_freelance/shadow-server"
 export PATH="$PATH:$(go env GOPATH)/bin"
 
 # Don't timeout `pass -c` so quickly (see /usr/local/bin/pass).
@@ -266,6 +272,39 @@ convert-video() {
         -movflags +faststart \
         -y "${file%.*}.new.mp4"
 }
+
+
+PROJECT_DIR='.config/kitty/projects'
+PROJECT_EXT='.sh'
+
+project() {
+    path="${PROJECT_DIR}/${1}${PROJECT_EXT}"
+    if [ -z "$1" ]; then
+        echo "Project name not specified."
+    elif [ ! -f "$path" ]; then
+        echo "Profile file not found at:"
+        echo "$path"
+    else
+        source "$path"
+    fi
+}
+
+_project_complete() {
+    # https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html
+    # https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
+    # https://www.gnu.org/software/bash/manual/html_node/A-Programmable-Completion-Example.html
+    local current="$2"
+    compopt -o nospace
+    for project_file_path in $(compgen -f -- "${PROJECT_DIR}/${current}")
+    do
+        project_file=$(basename "$project_file_path")
+        project_name="${project_file%$PROJECT_EXT}"
+        COMPREPLY+=("$project_name")
+    done
+}
+
+complete -F _project_complete project
+
 
 # # As instructed in rvm installer instructions:
 # [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
