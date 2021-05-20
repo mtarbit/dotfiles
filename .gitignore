@@ -1,2 +1,3 @@
 source/.vim/tmp/*
 source/.config/iterm2/AppSupport
+source/.hammerspoon/.cli.history
