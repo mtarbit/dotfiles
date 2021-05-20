@@ -4,12 +4,16 @@ SCREEN_DESKTOP = 'LG UltraFine'
 -- Using bundle IDs rather than app names here because iTerm2 doesn't
 -- respond to the name that it returns via app:name() for some reason.
 
+APP_ID_KITTY  = 'net.kovidgoyal.kitty'
 APP_ID_ITERM  = 'com.googlecode.iterm2'
 APP_ID_CHROME = 'com.google.Chrome'
 APP_ID_MAIL   = 'com.apple.mail'
 APP_ID_SLACK  = 'com.tinyspeck.slackmacgap'
 
+APP_DEFAULTS = {APP_ID_KITTY, APP_ID_CHROME, APP_ID_MAIL, APP_ID_SLACK}
+
 APP_LAYOUT_DESKTOP = {
+    {APP_ID_KITTY,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
@@ -17,6 +21,7 @@ APP_LAYOUT_DESKTOP = {
 }
 
 APP_LAYOUT_LAPTOP = {
+    {APP_ID_KITTY,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
@@ -118,20 +123,17 @@ function applyLayout(layout)
 end
 
 function launchApps()
-    local screens = hs.screen.allScreens()
-    local layout = nil
-
-    if #screens == 1 then
-        layout = APP_LAYOUT_LAPTOP
-    else
-        layout = APP_LAYOUT_DESKTOP
-    end
-
     -- Iterate through apps in reverse order, opening them and waiting for each one
     -- to open so that the apps at the top of the layout list end up at the front.
 
-    for i = #layout, 1, -1 do
-        local id = layout[i][1]
+    for i = #APP_DEFAULTS, 1, -1 do
+        local id = APP_DEFAULTS[i]
         hs.application.open(id, 10, true)
+    end
+
+    if #hs.screen.allScreens() == 1 then
+        hs.layout.apply(APP_LAYOUT_LAPTOP)
+    else
+        hs.layout.apply(APP_LAYOUT_DESKTOP)
     end
 end
