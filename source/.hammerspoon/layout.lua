@@ -86,6 +86,13 @@ function setBluetoothState(value)
 end
 
 function setDockAutoHiding(value)
+    -- Note that the dock will animate when autohide value is toggled.
+    -- It's possible to set the speed of this with defaults write,
+    -- but the dock will still animate when using killall to apply the
+    -- new default, so there would be no real advantage to temporarily
+    -- setting a value here. See:
+    -- https://macos-defaults.com/dock/autohide-time-modifier.html
+    -- https://macos-defaults.com/dock/autohide-delay.html
     runJavaScript([[
         system = Application("System Events");
         system.dockPreferences.autohide = {{ value }};
@@ -105,21 +112,18 @@ function setFrameCorrectness(value)
     -- here rather than turning it on permanently since resizing
     -- via window:moveToUnit() seems to work okay.
 
-    -- Only need to do this when switching to the laptop layout
-    -- since it mainly seems to affect Chrome and iTerm and the
-    -- laptop's screen is the one with the dock.
-
-    if layout == APP_LAYOUT_LAPTOP then
-        hs.window.setFrameCorrectness = value
-    end
+    hs.window.setFrameCorrectness = value
 end
 
 function applyLayout(layout)
     setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
-    setFrameCorrectness(true)
-    hs.layout.apply(layout)
-    setFrameCorrectness(false)
-    setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
+    -- Allow time for dock show/hide anim to take effect.
+    hs.timer.doAfter(0.5, function()
+        setFrameCorrectness(true)
+        hs.layout.apply(layout)
+        setFrameCorrectness(false)
+        setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
+    end)
 end
 
 function launchApps()
