@@ -4,39 +4,45 @@ SCREEN_DESKTOP = 'LG UltraFine'
 -- Using bundle IDs rather than app names here because iTerm2 doesn't
 -- respond to the name that it returns via app:name() for some reason.
 
-APP_ID_KITTY  = 'net.kovidgoyal.kitty'
-APP_ID_ITERM  = 'com.googlecode.iterm2'
-APP_ID_CHROME = 'com.google.Chrome'
-APP_ID_MAIL   = 'com.apple.mail'
-APP_ID_SLACK  = 'com.tinyspeck.slackmacgap'
+APP_ID_KITTY    = 'net.kovidgoyal.kitty'
+APP_ID_ITERM    = 'com.googlecode.iterm2'
+APP_ID_FIREFOX  = 'org.mozilla.firefox'
+APP_ID_CHROME   = 'com.google.Chrome'
+APP_ID_MAIL     = 'com.apple.mail'
+APP_ID_SLACK    = 'com.tinyspeck.slackmacgap'
+APP_ID_SPOTIFY  = 'com.spotify.client'
 
-APP_DEFAULTS = {APP_ID_KITTY, APP_ID_CHROME, APP_ID_MAIL, APP_ID_SLACK}
+APP_DEFAULTS = {APP_ID_KITTY, APP_ID_FIREFOX, APP_ID_MAIL, APP_ID_SLACK}
 
 APP_LAYOUT_DESKTOP = {
-    {APP_ID_KITTY,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_ITERM,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_CHROME, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_KITTY,   nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_ID_ITERM,   nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_ID_FIREFOX, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_ID_CHROME,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
+    {APP_ID_MAIL,    nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
 APP_LAYOUT_LAPTOP = {
-    {APP_ID_KITTY,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_ITERM,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_CHROME, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_MAIL,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_SLACK,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_KITTY,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_ITERM,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_FIREFOX, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_CHROME,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_MAIL,    nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
+    {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
 
 function screenWatcherFn()
-    -- Switch layouts when number of screens changes.
+    -- Switch setup when number of screens changes.
     local screens = hs.screen.allScreens()
     if #screens ~= #currentScreens then
         currentScreens = screens
         if #screens == 1 then
-            applyLayout(APP_LAYOUT_LAPTOP)
+            switchSetup(APP_LAYOUT_LAPTOP)
         else
-            applyLayout(APP_LAYOUT_DESKTOP)
+            switchSetup(APP_LAYOUT_DESKTOP)
         end
     end
 end
@@ -115,7 +121,18 @@ function setFrameCorrectness(value)
     hs.window.setFrameCorrectness = value
 end
 
-function applyLayout(layout)
+function switchSetup(layout)
+    local layoutName
+
+    if layout == APP_LAYOUT_LAPTOP then
+        layoutName = 'laptop'
+    else
+        layoutName = 'desktop'
+    end
+
+    -- Try to figure out why dock sometimes becomes hidden while in desktop mode.
+    hs.notify.show('Switching setup', '', 'Switching to setup: ' .. layoutName)
+
     setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
     -- Allow time for dock show/hide anim to take effect.
     hs.timer.doAfter(0.5, function()
