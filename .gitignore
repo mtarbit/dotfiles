@@ -2,3 +2,4 @@ source/.vim/tmp/*
 source/.config/iterm2/AppSupport
 source/.config/kitty/projects
 source/.hammerspoon/.cli.history
+source/.hammerspoon/notes.txt

@@ -1,8 +1,17 @@
 platform=$(uname)
 
+# Check the window size after each command and update
+# the values of $LINES and $COLUMNS if necessary.
 shopt -s checkwinsize
 
+# Do inline auto-expansion of history substitutions
+# like `!!` when they are followed by a space.
 bind Space:magic-space
+
+# Disable start/stop output control (usually Ctrl-S),
+# to allow searching back and forth through command
+# history with Ctrl-R and Ctrl-S.
+stty -ixon
 
 BLK_CLR="\[$(tput setaf 0)\]"
 RED_CLR="\[$(tput setaf 1)\]"
