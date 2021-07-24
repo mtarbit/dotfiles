@@ -152,6 +152,13 @@ alias 'docker-exec'='docker-compose exec'
 alias 'docker-run'='docker-compose run --rm'
 alias 'docker-django'='docker-run web python manage.py'
 
+# A compromise for kitty. The official line is that users should alias
+# this command to `kitty +kitten ssh <server-name>` to copy terminfo
+# files to the server, but that isn't so helpful if you're likely to be
+# switching to a different account after connecting. So just announce
+# ourselves as a vaguely similar supported TERM type instead.
+alias 'ssh'='TERM=xterm-256color ssh'
+
 docker-logs() {
     docker-compose logs -f --tail=$(tput lines) "$1" | less -RS +F
 }
@@ -274,7 +281,7 @@ convert-video() {
 }
 
 
-PROJECT_DIR='.config/kitty/projects'
+PROJECT_DIR=~/.config/kitty/projects
 PROJECT_EXT='.sh'
 
 project() {
