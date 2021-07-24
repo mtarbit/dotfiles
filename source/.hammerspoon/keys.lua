@@ -4,7 +4,7 @@ local mush = {'cmd', 'alt'}
 hs.hotkey.bind(mash, 'left', moveWindowScreenPrev)
 hs.hotkey.bind(mash, 'right', moveWindowScreenNext)
 hs.hotkey.bind(mash, 'up', resizeWindowMax)
-hs.hotkey.bind(mash, 'down', resizeWindowMid)
+hs.hotkey.bind(mash, 'down', resizeWindowC50)
 
 hs.hotkey.bind(mush, 'left', resizeWindowL50)
 hs.hotkey.bind(mush, 'right', resizeWindowR50)
