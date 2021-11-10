@@ -155,7 +155,8 @@ fi
 alias 'll'='ls -l'
 alias 'ack'='ack --color-filename=green --color-match=yellow --ignore-file=ext:pyc'
 alias 'tmux'='tmux -2'
-alias 'date-slug'='date +"%Y-%m-%d_%H-%M"'
+alias 'date-slug'='date +"%Y-%m-%d"'
+alias 'date-time-slug'='date +"%Y-%m-%d_%H-%M"'
 alias 'whats-my-ip'='dig +short myip.opendns.com @resolver1.opendns.com'
 alias 'docker-exec'='docker-compose exec'
 alias 'docker-run'='docker-compose run --rm'
@@ -173,10 +174,11 @@ docker-logs() {
 }
 
 ansi-colors() {
-    for i in {0..3}; do
-        for j in {30..37}; do
-            for k in {40..47}; do
+    for i in {0..3}; do # Style
+        for j in {30..37}; do # Foreground color
+            for k in {40..47}; do # Background color
                 echo -ne "\033[${i};${j};${k}m${i};${j};${k}\033[m "
+                # echo -ne "\033[${j};${k}m${j};${k}\033[m "
             done
             echo
         done
