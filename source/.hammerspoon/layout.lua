@@ -91,6 +91,39 @@ function setBluetoothState(value)
     ]], {action=action})
 end
 
+function setScrollDirection(value)
+    if value then
+        value = 1
+    else
+        value = 0
+    end
+
+    runJavaScript([[
+
+        // To find the properties and paths needed for UI elements
+        // referenced here you can try pasting part of this script
+        // into `Script Editor.app` and then try methods like
+        // `.properties()` and `.entireContents()`.
+
+        let systemPrefs = Application("System Preferences");
+        let systemPrefsProc = Application("System Events").processes.byName("System Preferences");
+
+        systemPrefs.activate();
+        systemPrefs.panes.byName("Trackpad").reveal();
+
+        let trackpadPrefs = systemPrefsProc.windows.byName("Trackpad").tabGroups.at(0);
+
+        trackpadPrefs.radioButtons.byName("Scroll & Zoom").click();
+
+        if (trackpadPrefs.checkboxes.at(0).value() != {{ value }}) {
+            trackpadPrefs.checkboxes.at(0).click();
+        }
+
+        systemPrefs.quit();
+
+    ]], {value=(value and 1 or 0)})
+end
+
 function setDockAutoHiding(value)
     -- Note that the dock will animate when autohide value is toggled.
     -- It's possible to set the speed of this with defaults write,
@@ -140,6 +173,7 @@ function switchSetup(layout)
         hs.layout.apply(layout)
         setFrameCorrectness(false)
         setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
+        setScrollDirection(layout == APP_LAYOUT_LAPTOP)
     end)
 end
 
