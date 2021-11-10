@@ -237,15 +237,19 @@ vnoremap L $h
 " Open files relative to the path of the current file.
 cnoremap %% <c-r>=expand('%:h').'/'<cr>
 
-" A few readline-style key bindings taken from rsi.vim
+" Add readline-style mappings for command mode.
 " (https://github.com/tpope/vim-rsi)
-inoremap <C-a> <C-o>^
-cnoremap <C-a> <Home>
-inoremap <expr> <C-e> col('.')>strlen(getline('.'))<bar><bar>pumvisible()?"\<Lt>C-E>":"\<Lt>End>"
-silent! exe "set <F29>=\<Esc>b"
-silent! exe "set <F30>=\<Esc>f"
-noremap! <F29> <S-Left>
-noremap! <F30> <S-Right>
+
+" Note that vim's idea of a 'word' is different
+" to readline's and this plugin may have a more
+" accurate implementation:
+" https://github.com/ryvnf/readline.vim
+
+" silent! exe "set <F29>=\<Esc>b"
+" silent! exe "set <F30>=\<Esc>f"
+" cnoremap <F29> <S-Left>
+" cnoremap <F30> <S-Right>
+" cnoremap <C-a> <Home>
 
 " Quickly create a new paragraph:
 nnoremap <leader>o o<c-o>o
