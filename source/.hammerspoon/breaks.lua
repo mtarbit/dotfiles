@@ -1,9 +1,9 @@
 local webview = nil
 
-local enabled = false
+local enabled = true
 local debug = false
 
-local intervals = {mini=20, long=60}  -- Number of minutes between breaks.
+local intervals = {mini=30, long=60}  -- Number of minutes between breaks.
 local durations = {mini=30, long=300} -- Number of seconds that a break lasts for.
 local notifyDue = {mini=10, long=30}  -- Number of seconds beforehand to show a notification.
 

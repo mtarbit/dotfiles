@@ -20,7 +20,7 @@ menuBar = hs.menubar.new()
 menuBar:setIcon('ASCII:' .. menuBarIcon)
 
 menuBarMenu = {
-  {title='Break reminders', fn=toggleBreaks, checked=false},
+  {title='Break reminders', fn=toggleBreaks, checked=true},
   {title='Caffeinate', fn=toggleCaffeinate, checked=false},
   {title='-'}, -- separator
   {title='Launch default apps', fn=launchApps},
