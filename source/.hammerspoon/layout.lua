@@ -92,12 +92,6 @@ function setBluetoothState(value)
 end
 
 function setScrollDirection(value)
-    if value then
-        value = 1
-    else
-        value = 0
-    end
-
     runJavaScript([[
 
         // To find the properties and paths needed for UI elements
