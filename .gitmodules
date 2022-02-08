@@ -34,3 +34,6 @@
 [submodule "source/.vim/bundle/typescript-vim"]
 	path = source/.vim/bundle/typescript-vim
 	url = https://github.com/leafgarland/typescript-vim.git
+[submodule "source/.vim/bundle/vim-context-commentstring"]
+	path = source/.vim/bundle/vim-context-commentstring
+	url = https://github.com/suy/vim-context-commentstring.git
