@@ -478,6 +478,9 @@ let NERDTreeMouseMode = 2
 " Prevent supertab.vim from clobbering our <cr> mapping below.
 let g:SuperTabCrMapping = 0
 
+" Don't use templates from vim-go
+let g:go_template_autocreate = 0
+
 " Don't render tag contents with bold, italic & underline in HTML.
 let html_no_rendering=1
 
