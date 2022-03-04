@@ -71,18 +71,18 @@ set directory=~/.vim/tmp/swap//
 set fillchars=fold:─,vert:│
 
 " Configure the status line unless we're using the powerline plugin.
-if !exists('g:Powerline_loaded') || !g:Powerline_loaded
+if (match(&runtimepath, 'vim-airline') != 1)
+    let g:airline_section_x = airline#section#create_right(['filetype', 'ffenc'])
+    let g:airline_section_y = airline#section#create_right(['%p%%'])
+    let g:airline_section_z = airline#section#create(['%l:%v'])
+    let g:airline_section_error = ''
+    let g:airline_section_warning = ''
+    let g:airline_theme = 'matts_dark_minimal'
+else
     " Always show a status line above the command prompt.
     set laststatus=2
-    set statusline=t\ %r%m%y\ %=[%l\ of\ %L]
+    set statusline=%t\ %r%m%y\ %=[%l\ of\ %L]
 endif
-
-let g:airline_section_x = airline#section#create_right(['filetype', 'ffenc'])
-let g:airline_section_y = airline#section#create_right(['%p%%'])
-let g:airline_section_z = airline#section#create(['%l:%v'])
-let g:airline_section_error = ''
-let g:airline_section_warning = ''
-let g:airline_theme = 'matts_dark_minimal'
 
 " Auto-commands
 augroup mt_general
