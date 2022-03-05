@@ -70,20 +70,6 @@ set directory=~/.vim/tmp/swap//
 " Use solid lines for folds and vertical splits.
 set fillchars=fold:─,vert:│
 
-" Configure the status line either via airline or natively.
-if (match(&runtimepath, 'vim-airline') != -1)
-    let g:airline_section_x = airline#section#create_right(['filetype', 'ffenc'])
-    let g:airline_section_y = airline#section#create_right(['%p%%'])
-    let g:airline_section_z = airline#section#create(['%l:%v'])
-    let g:airline_section_error = ''
-    let g:airline_section_warning = ''
-    let g:airline_theme = 'matts_dark_minimal'
-else
-    " Always show a status line above the command prompt.
-    set laststatus=2
-    set statusline=%f\ %r%m\ %=%y[%{&fenc}][%{&ff}]\ %p%%\ %l:%v
-endif
-
 " Auto-commands
 augroup mt_general
     autocmd!
@@ -105,6 +91,30 @@ augroup mt_general
 
     autocmd VimResized * execute "normal! \<c-w>="
 augroup END
+
+
+" ------------------------------------------------------------------------------
+" Statusline
+" ------------------------------------------------------------------------------
+
+" Configure the native status line.
+
+set laststatus=2
+set statusline=%f\ %r%m\ %=%y[%{&fenc}][%{&ff}]\ %p%%\ %l:%v
+
+" Configure vim-airline if it's available.
+
+let g:airline_theme = 'matts_dark_minimal'
+
+function! AirlineConfigure()
+    let g:airline_section_x = airline#section#create_right(['filetype', 'ffenc'])
+    let g:airline_section_y = airline#section#create_right(['%p%%'])
+    let g:airline_section_z = airline#section#create(['%l:%v'])
+    let g:airline_section_error = ''
+    let g:airline_section_warning = ''
+endfunction
+
+autocmd User AirlineAfterInit call AirlineConfigure()
 
 
 " ------------------------------------------------------------------------------
