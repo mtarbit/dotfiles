@@ -1,39 +1,39 @@
 [submodule "source/.vim/bundle/matchtag"]
-	path = source/.vim/bundle/matchtag
+	path = source/.vim/pack/plugins/start/matchtag
 	url = https://github.com/gregsexton/MatchTag.git
 [submodule "source/.vim/bundle/nerdtree"]
-	path = source/.vim/bundle/nerdtree
+	path = source/.vim/pack/plugins/start/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
 [submodule "source/.vim/bundle/supertab"]
-	path = source/.vim/bundle/supertab
+	path = source/.vim/pack/plugins/start/supertab
 	url = https://github.com/ervandew/supertab.git
 [submodule "source/.vim/bundle/vim-indent-object"]
-	path = source/.vim/bundle/vim-indent-object
+	path = source/.vim/pack/plugins/start/vim-indent-object
 	url = https://github.com/michaeljsmith/vim-indent-object.git
 [submodule "source/.vim/bundle/editorconfig-vim"]
-	path = source/.vim/bundle/editorconfig-vim
+	path = source/.vim/pack/plugins/start/editorconfig-vim
 	url = https://github.com/editorconfig/editorconfig-vim
 [submodule "source/.vim/bundle/vim-airline"]
-	path = source/.vim/bundle/vim-airline
+	path = source/.vim/pack/plugins/start/vim-airline
 	url = https://github.com/vim-airline/vim-airline
 [submodule "source/.vim/bundle/vim-airline-themes"]
-	path = source/.vim/bundle/vim-airline-themes
+	path = source/.vim/pack/plugins/start/vim-airline-themes
 	url = https://github.com/vim-airline/vim-airline-themes
 [submodule "source/.vim/bundle/vim-commentary"]
-	path = source/.vim/bundle/vim-commentary
+	path = source/.vim/pack/plugins/start/vim-commentary
 	url = https://github.com/tpope/vim-commentary
 [submodule "source/.vim/bundle/vim-go"]
-	path = source/.vim/bundle/vim-go
+	path = source/.vim/pack/plugins/start/vim-go
 	url = https://github.com/fatih/vim-go
 [submodule "source/.vim/bundle/vim-javascript"]
-	path = source/.vim/bundle/vim-javascript
+	path = source/.vim/pack/plugins/start/vim-javascript
 	url = https://github.com/pangloss/vim-javascript
 [submodule "source/.vim/bundle/python-syntax"]
-	path = source/.vim/bundle/python-syntax
+	path = source/.vim/pack/plugins/start/python-syntax
 	url = https://github.com/vim-python/python-syntax.git
 [submodule "source/.vim/bundle/typescript-vim"]
-	path = source/.vim/bundle/typescript-vim
+	path = source/.vim/pack/plugins/start/typescript-vim
 	url = https://github.com/leafgarland/typescript-vim.git
 [submodule "source/.vim/bundle/vim-context-commentstring"]
-	path = source/.vim/bundle/vim-context-commentstring
+	path = source/.vim/pack/plugins/start/vim-context-commentstring
 	url = https://github.com/suy/vim-context-commentstring.git

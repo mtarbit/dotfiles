@@ -1,6 +1,6 @@
 " Use pathogen for neater plugin management.
-call pathogen#runtime_append_all_bundles()
-call pathogen#helptags()
+" call pathogen#runtime_append_all_bundles()
+" call pathogen#helptags()
 
 " Recognise file-type-specific plugin config in ftplugins dirs.
 filetype plugin on
