@@ -166,6 +166,13 @@ augroup mt_whitespace
     " Don't highlight tabs in go files, since we're expected to use them:
     autocmd Filetype go :set listchars+=tab:\ \ 
     autocmd Filetype go :hi SpecialKey ctermfg=red ctermbg=none
+
+    " Don't use vim-go's new file templates
+    let g:go_template_autocreate = 0
+
+    " Don't use vim-go's gopls-based features. It may be that we don't
+    " actually need vim-go at all, but just trying this for now.
+    let g:go_gopls_enabled = 0
 augroup END
 
 
@@ -487,9 +494,6 @@ let NERDTreeMouseMode = 2
 
 " Prevent supertab.vim from clobbering our <cr> mapping below.
 let g:SuperTabCrMapping = 0
-
-" Don't use templates from vim-go
-let g:go_template_autocreate = 0
 
 " Don't render tag contents with bold, italic & underline in HTML.
 let html_no_rendering=1
