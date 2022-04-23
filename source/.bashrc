@@ -37,6 +37,12 @@ __prompt_title() {
     # Not sure why that is, but I found this `\e]0;` version in the default Ubuntu
     # .bashrc and it seems to work in both.
 
+    # TODO: It looks like it's possible to use something like this with $PS0 to show
+    # the current command in the terminal tab or window title. See here for details:
+    # ${KITTY_INSTALLATION_DIR}/shell-integration/bash/kitty.bash
+    # We're not just using kitty's default shell integration for this since it shows
+    # the full pwd path and we just want the shorter basename.
+
     # echo "\[$(tput tsl)\W$(tput fsl)\]"
     echo "\[\e]0;\W\a\]"
 }
@@ -104,6 +110,7 @@ fi
 
 if [[ $(uname) == 'Darwin' ]]; then
     alias 'ls'='ls -hpAG'
+    alias 'firefox'='/Applications/Firefox.app/Contents/MacOS/firefox'
     alias 'chrome'='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
 else
     alias 'ls'='ls -hpA --color=auto'
