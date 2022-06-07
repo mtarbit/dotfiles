@@ -7,6 +7,7 @@
                 {
                     "conditions": [
                         {
+                            "type": "device_if",
                             "identifiers": [
                                 {
                                     "is_keyboard": true,
@@ -14,8 +15,7 @@
                                     "product_id": 591,
                                     "vendor_id": 1452
                                 }
-                            ],
-                            "type": "device_if"
+                            ]
                         }
                     ],
                     "from": {
@@ -32,6 +32,40 @@
                         }
                     ],
                     "to_if_alone": [
+                        {
+                            "key_code": "grave_accent_and_tilde"
+                        }
+                    ],
+                    "type": "basic"
+                }
+            ]
+        },
+        {
+            "description": "Change left_shift to grave_accent_and_tilde if alone or with right_shift (breaks left_shift+tab).",
+            "manipulators": [
+                {
+                    "conditions": [
+                        {
+                            "type": "device_if",
+                            "identifiers": [
+                                {
+                                    "is_keyboard": true,
+                                    "is_pointing_device": false,
+                                    "product_id": 591,
+                                    "vendor_id": 1452
+                                }
+                            ]
+                        }
+                    ],
+                    "from": {
+                        "key_code": "left_shift",
+                        "modifiers": {
+                            "optional": [
+                                "right_shift"
+                            ]
+                        }
+                    },
+                    "to": [
                         {
                             "key_code": "grave_accent_and_tilde"
                         }
