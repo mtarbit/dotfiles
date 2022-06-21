@@ -95,7 +95,13 @@ fi
 # Added by the Rust installer on 2018-08-05.
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Include keg-only brew mysql in path on 2020-11-14
-# (need to specify paths to mysql because the default brew mysql is
-# now 8.0 which doesn't match what I need to use for some projects)
-export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
+# Removed because I'm installing mysql 8 and mysql 5 side-by-side
+# now since we'll be migrating to 8 on any ubuntu 22 deploy envs.
+
+# That means that I should use `brew unlink` and `brew link` to
+# change which `mysql` is used, instead of editing the $PATH.
+
+# # Include keg-only brew mysql in path on 2020-11-14
+# # (need to specify paths to mysql because the default brew mysql is
+# # now 8.0 which doesn't match what I need to use for some projects)
+# export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
