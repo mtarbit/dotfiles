@@ -238,10 +238,6 @@ ssl-fingerprint() {
     openssl x509 -noout -serial -in $1 | cut -d'=' -f2 | sed 's/../&:/g; s/:$//' # | tr '[:upper:]' '[:lower:]'
 }
 
-rust-run() {
-    rustc "$1.rs" --out-dir=/Users/mtarbit/tmp/rust-learning/bin && /Users/mtarbit/tmp/rust-learning/bin/"$1"
-}
-
 init-cpp-exercise() {
     dir_name=$PWD
     dir_name=${dir_name##*/}
