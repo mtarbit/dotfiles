@@ -37,3 +37,6 @@
 [submodule "source/.vim/bundle/vim-context-commentstring"]
 	path = source/.vim/pack/plugins/start/vim-context-commentstring
 	url = https://github.com/suy/vim-context-commentstring.git
+[submodule "source/.vim/pack/plugins/start/rust.vim"]
+	path = source/.vim/pack/plugins/start/rust.vim
+	url = https://github.com/rust-lang/rust.vim
