@@ -64,10 +64,13 @@ export PASSWORD_STORE_CLIP_TIME=7200
 # Paths (and setup for env managers)
 # ==============================================================================
 
-# export GOPATH='/Users/mtarbit/projects/_learning/go'
 export CDPATH="$CDPATH:.:~:~/projects:~/projects/_freelance/shadow-server"
-export PATH="$PATH:$(go env GOPATH)/bin:~/bin"
 
+# Not using these at the moment and `npm bin` is slow.
+# export GOPATH='/Users/mtarbit/projects/_learning/go'
+# export PATH="${PATH}:~/bin"
+# export PATH="${PATH}:$(go env GOPATH)/bin
+# export PATH="${PATH}:$(npm bin)"
 
 # # As instructed in rvm installer instructions:
 # if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
@@ -80,13 +83,21 @@ export PATH="$PATH:$(go env GOPATH)/bin:~/bin"
 #     eval "$(rbenv init -)"
 # fi
 
-eval "$(rbenv init -)"
+# eval "$(rbenv init -)"
 
 # Added as instructed by pyenv docs (after `brew install pyenv`).
 # https://github.com/pyenv/pyenv#basic-github-checkout
 if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
+
+    # Trying to speed up time-to-prompt in bash. See:
+    # https://github.com/pyenv/pyenv/issues/784
+    # https://github.com/pyenv/pyenv#advanced-configuration
+    #
+    # # export PYENV_DEBUG=1
+    # # eval "$(pyenv init --path)"
+    # # eval "$(pyenv init -)"
+
+    eval "$(pyenv init --no-rehash --path)"
 fi
 
 # ### Added by the Heroku Toolbelt

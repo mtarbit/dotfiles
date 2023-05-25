@@ -104,9 +104,9 @@ __prompt() {
 # Aliases
 # ==============================================================================
 
-if [[ -r "$(brew --prefix)/etc/bash_completion" ]]; then
-    . "$(brew --prefix)/etc/bash_completion"
-fi
+# if [[ -r "$(brew --prefix)/etc/bash_completion" ]]; then
+#     . "$(brew --prefix)/etc/bash_completion"
+# fi
 
 if [[ $(uname) == 'Darwin' ]]; then
     alias 'ls'='ls -hpAG'
@@ -145,9 +145,9 @@ alias 'ssh'='TERM=xterm-256color ssh'
 # Functions
 # ==============================================================================
 
-docker-logs() {
-    docker-compose logs -f --tail=$(tput lines) "$1" | less -RS +F
-}
+# docker-logs() {
+#     docker-compose logs -f --tail=$(tput lines) "$1" | less -RS +F
+# }
 
 ansi-colors() {
     for i in {0..3}; do # Style
@@ -211,14 +211,6 @@ fix-sound() {
     sudo pkill -f coreaudio[a-z]
 }
 
-usr-include-path() {
-    echo "$(xcrun --show-sdk-path)/usr/include"
-}
-
-dict() {
-    open "dict://${1}"
-}
-
 man-opt() {
     # Open the man page for a command and jump to a particular option.
     # Note that `less -is` is default man pager according to `man man`.
@@ -227,41 +219,49 @@ man-opt() {
     man -P "less -is -p '^ +${2}'" "${1}";
 }
 
-brew-installed() {
-    brew info "${1}" | \
-    grep "Not installed" > /dev/null \
-    && echo "not-installed" \
-    || echo "installed"
-}
+# usr-include-path() {
+#     echo "$(xcrun --show-sdk-path)/usr/include"
+# }
 
-ssl-fingerprint() {
-    openssl x509 -noout -serial -in $1 | cut -d'=' -f2 | sed 's/../&:/g; s/:$//' # | tr '[:upper:]' '[:lower:]'
-}
+# dict() {
+#     open "dict://${1}"
+# }
 
-init-cpp-exercise() {
-    dir_name=$PWD
-    dir_name=${dir_name##*/}
-    dir_name=${dir_name//-/_}
-    touch "$dir_name".{h,cpp}
-    mkdir build
-    cmake -G "Unix Makefiles" -B build
-}
+# brew-installed() {
+#     brew info "${1}" | \
+#     grep "Not installed" > /dev/null \
+#     && echo "not-installed" \
+#     || echo "installed"
+# }
 
-test-cpp-exercise() {
-    make -C build
-}
+# ssl-fingerprint() {
+#     openssl x509 -noout -serial -in $1 | cut -d'=' -f2 | sed 's/../&:/g; s/:$//' # | tr '[:upper:]' '[:lower:]'
+# }
 
-convert-video() {
-    file=$1
-    width=1280
-    ffmpeg -i "${file}" \
-        -codec:v h264 -codec:a aac \
-        -filter:v scale=${width}:-2 \
-        -profile:v baseline -level 3.0 \
-        -pix_fmt yuv420p \
-        -movflags +faststart \
-        -y "${file%.*}.new.mp4"
-}
+# init-cpp-exercise() {
+#     dir_name=$PWD
+#     dir_name=${dir_name##*/}
+#     dir_name=${dir_name//-/_}
+#     touch "$dir_name".{h,cpp}
+#     mkdir build
+#     cmake -G "Unix Makefiles" -B build
+# }
+
+# test-cpp-exercise() {
+#     make -C build
+# }
+
+# convert-video() {
+#     file=$1
+#     width=1280
+#     ffmpeg -i "${file}" \
+#         -codec:v h264 -codec:a aac \
+#         -filter:v scale=${width}:-2 \
+#         -profile:v baseline -level 3.0 \
+#         -pix_fmt yuv420p \
+#         -movflags +faststart \
+#         -y "${file%.*}.new.mp4"
+# }
 
 
 # ==============================================================================
