@@ -20,6 +20,11 @@ end
 
 function runJavaScript(s, t)
     return hs.osascript.javascript(template(s, t))
+    -- To debug template substitution and return value:
+    -- local source = template(s, t)
+    -- local logger = hs.logger.new('util', 'debug')
+    -- logger.i(source)
+    -- return hs.osascript._osascript(source, "JavaScript")
 end
 
 function runAppleScript(s, t)

@@ -1,5 +1,10 @@
-SCREEN_MACBOOK = 'Color LCD'
-SCREEN_DESKTOP = 'LG UltraFine'
+-- See `hs.screen.find()` for notes on use of '%' here:
+-- https://www.hammerspoon.org/docs/hs.screen.html#find
+
+-- SCREEN_MACBOOK = 'Built%-in Retina Display'
+SCREEN_MACBOOK = '5DA908AD-E526-82CA-BA70-B36377A262C4'
+-- SCREEN_DESKTOP = 'LG UltraFine'
+SCREEN_DESKTOP = '2C89607A-254C-BFC7-958B-A07D111936FA'
 
 -- Using bundle IDs rather than app names here because iTerm2 doesn't
 -- respond to the name that it returns via app:name() for some reason.
@@ -16,9 +21,7 @@ APP_DEFAULTS = {APP_ID_KITTY, APP_ID_FIREFOX, APP_ID_MAIL, APP_ID_SLACK}
 
 APP_LAYOUT_DESKTOP = {
     {APP_ID_KITTY,   nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_ITERM,   nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_FIREFOX, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_CHROME,  nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
     {APP_ID_MAIL,    nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
@@ -26,9 +29,7 @@ APP_LAYOUT_DESKTOP = {
 
 APP_LAYOUT_LAPTOP = {
     {APP_ID_KITTY,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_ITERM,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_FIREFOX, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_CHROME,  nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_MAIL,    nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
@@ -52,6 +53,8 @@ screenWatcher = hs.screen.watcher.new(screenWatcherFn)
 screenWatcher:start()
 
 function setBluetoothState(value)
+    hs.notify.show('Setting bluetooth state', '', (value and "On" or "Off"))
+
     local action
 
     if value then
@@ -60,60 +63,68 @@ function setBluetoothState(value)
         action = 'Turn Bluetooth Off'
     end
 
-    runJavaScript([[
+    return runJavaScript([[
 
-        let systemEvents = Application("System Events");
-        let systemUiServer = systemEvents.applicationProcesses["SystemUIServer"];
+        var systemPrefs = Application("System Preferences");
 
-        let menuBarItem, menuItem;
+        systemPrefs.activate();
+        systemPrefs.panes.byName("Bluetooth").reveal();
+
+        var systemPrefsUI = Application("System Events").processes.byName("System Preferences");
+        var bluetoothUI = systemPrefsUI.windows.byName("Bluetooth");
+        var button;
+
+        delay(2.5);
 
         try {
-
-            // Click the menu-bar item for Bluetooth.
-            menuBarItem = systemUiServer.menuBars[0].menuBarItems.whose({description: "bluetooth"}).first();
-            menuBarItem.click();
-
-            // Click the menu item to toggle state.
-            try {
-                menuItem = menuBarItem.menus[0].menuItems.whose({title: "{{ action }}"}).first();
-                menuItem.click();
-            } catch (e) {
-                if (e.message != "Invalid index.") throw e;
-                // Send escape key-code to close menu.
-                systemEvents.keyCode(53);
-            }
-
+            button = bluetoothUI.buttons.byName("{{ action }}");
+            button.click();
         } catch (e) {
-            if (e.message != "Invalid index.") throw e;
-            // Bluetooth menu-bar item is disabled.
+            if (e.message != "Can't get object.") {
+                throw e;
+            }
         }
+
+        systemPrefs.quit();
+
+        delay(1.0);
 
     ]], {action=action})
 end
 
 function setScrollDirection(value)
-    runJavaScript([[
+    hs.notify.show('Setting scroll direction', '', (value and "Trackpad" or "Mouse"))
+
+    return runJavaScript([[
 
         // To find the properties and paths needed for UI elements
         // referenced here you can try pasting part of this script
         // into `Script Editor.app` and then try methods like
-        // `.properties()` and `.entireContents()`.
+        // `.properties()` and `.entireContents()`. You can see
+        // output from calls to console.log in the "messages" tab.
 
-        let systemPrefs = Application("System Preferences");
-        let systemPrefsProc = Application("System Events").processes.byName("System Preferences");
+        // Also try `osascript -l Javascript -i`. See:
+        // https://www.macstories.net/tutorials/getting-started-with-javascript-for-automation-on-yosemite/
+
+        var systemPrefs = Application("System Preferences");
 
         systemPrefs.activate();
         systemPrefs.panes.byName("Trackpad").reveal();
 
-        let trackpadPrefs = systemPrefsProc.windows.byName("Trackpad").tabGroups.at(0);
+        var systemPrefsUI = Application("System Events").processes.byName("System Preferences");
+        var trackpadUI = systemPrefsUI.windows.byName("Trackpad").tabGroups.at(0);
 
-        trackpadPrefs.radioButtons.byName("Scroll & Zoom").click();
+        delay(2.5);
 
-        if (trackpadPrefs.checkboxes.at(0).value() != {{ value }}) {
-            trackpadPrefs.checkboxes.at(0).click();
+        trackpadUI.radioButtons.byName("Scroll & Zoom").click();
+
+        if (trackpadUI.checkboxes.at(0).value() != {{ value }}) {
+            trackpadUI.checkboxes.at(0).click();
         }
 
         systemPrefs.quit();
+
+        delay(1.0);
 
     ]], {value=(value and 1 or 0)})
 end
@@ -162,7 +173,7 @@ function switchSetup(layout)
 
     setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
     -- Allow time for dock show/hide anim to take effect.
-    hs.timer.doAfter(0.5, function()
+    hs.timer.doAfter(3.0, function()
         setFrameCorrectness(true)
         hs.layout.apply(layout)
         setFrameCorrectness(false)
