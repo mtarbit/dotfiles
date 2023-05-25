@@ -16,6 +16,8 @@ hs.hotkey.bind(mash, 'd', searchDictionary)
 
 hs.hotkey.bind(mush, 'p', function() searchPasswords('show') end)
 hs.hotkey.bind(mash, 'p', function() searchPasswords('copy') end)
+hs.hotkey.bind(mush, 'o', function() searchPasswords('copy-otp') end)
+hs.hotkey.bind(mash, 'o', function() searchPasswords('copy-pass-and-otp') end)
 
 hs.hotkey.bind(mash, 'r', hs.reload)
 hs.hotkey.bind(mash, '/', hs.toggleConsole)

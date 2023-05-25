@@ -42,13 +42,12 @@ local longestCommonPrefix = function(choices)
     return result
 end
 
-local copyPassword = function(label, output)
-    local password, _ = output:gsub('\n', '')
-    hs.pasteboard.setContents(password)
-    hs.notify.show('Password copied', '', label)
+local copyPassword = function(output, name, title)
+    hs.pasteboard.setContents(output)
+    hs.notify.show(title .. " copied", '', name)
 end
 
-local showPassword = function(label, output)
+local showPassword = function(output)
     local unit = hs.geometry.unitrect(0.3, 0.2, 0.4, 0.6)
     local rect = unit:fromUnitRect(hs.screen.primaryScreen():frame())
     local html = '<style>' .. readFile('assets/pass/style.css') .. '</style>'
@@ -79,7 +78,7 @@ end
 local chooserSelect = function(mode, choice)
     if tab then tab:delete() end
     if choice ~= nil then
-        local label = choice.text
+        local name = choice.text
 
         -- Note that this is a bit finicky. Calling the `pass` command will
         -- trigger a pinentry dialog when needed, presuming pinentry-mac is
@@ -94,22 +93,42 @@ local chooserSelect = function(mode, choice)
         -- be cleared, since `pass` usually handles that.
 
         hs.timer.doAfter(0.000001, function()
-            if mode == 'copy' then
-
-                -- Copy the password to the clipboard.
-                local output, status = hs.execute('pass show ' .. label .. ' | head -1', true)
-
-                if status ~= nil then
-                    copyPassword(label, output)
-                end
-
-            elseif mode == 'show' then
+            if mode == 'show' then
 
                 -- Show the contents of the password file in a window.
-                local output, status = hs.execute('pass show ' .. label .. ' | tail +2', true)
+                local output, status = hs.execute("pass show " .. name .. " | tail +2", true)
 
                 if status ~= nil then
-                    showPassword(label, output)
+                    showPassword(output)
+                end
+
+            elseif mode == 'copy' then
+
+                -- Copy the password to the clipboard.
+                local output, status = hs.execute("pass show " .. name .. " | head -1 | tr -d '\n'", true)
+
+                if status ~= nil then
+                    copyPassword(output, name, "Password")
+                end
+
+            elseif mode == 'copy-otp' then
+
+                -- Copy the OTP to the clipboard.
+                local output, status = hs.execute("pass otp " .. name .. " | tr -d '\n'", true)
+
+                if status ~= nil then
+                    copyPassword(output, name, "OTP")
+                end
+
+            elseif mode == 'copy-pass-and-otp' then
+
+                -- Copy the password and OTP to the clipboard.
+                local outputA, statusA = hs.execute("pass show " .. name .. " | head -1 | tr -d '\n'", true)
+                local outputB, statusB = hs.execute("pass otp " .. name .. " | tr -d '\n'", true)
+
+                if statusA ~= nil and statusB ~= nil then
+                    local output = outputA .. "|" .. outputB
+                    copyPassword(output, name, "Password and OTP")
                 end
 
             end
