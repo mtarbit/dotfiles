@@ -1,0 +1,16 @@
+This directory path only exists so I can add config that needs to run after
+any native plugins are loaded (or at least after they have been added to the
+runtimepath). There's probably a nicer way to handle this but I wasn't able
+to find it after several attempts.
+
+The issue is that vim-context-commentstring is configured via an autoloaded
+dictionary, but we can't add a key to that dictionary in our .vimrc because
+the autoloading wont work until the plugin path is included in runtimepath.
+Plugin paths are only added to the runtimepath *after* .vimrc is evaluated.
+
+As a work-around I've added this 'plugins-config' path since it'll be added
+to the runtimepath at the same time as 'plugins'. It doesn't matter if the
+"fake" config plugin runs before the "real" plugin since we only need the
+autoloading to work to set the config and any setup can happen afterwards.
+
+See `:h packload-two-steps` for details.

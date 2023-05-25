@@ -70,6 +70,9 @@ set directory=~/.vim/tmp/swap//
 " Use solid lines for folds and vertical splits.
 set fillchars=fold:─,vert:│
 
+" Copy to and paste from system clipboard by default
+set clipboard^=unnamed
+
 " Auto-commands
 augroup mt_general
     autocmd!
@@ -138,6 +141,12 @@ set showbreak=↪
 
 " Show whitespace.
 set list
+
+" " Fix comment-style used for CSS or JS blocks within django templates.
+" set runtimepath?
+" source ~/.vim/pack/plugins/start/vim-context-commentstring/autoload/context/commentstring.vim
+" " runtime autoload/context/commentstring.vim
+" let g:context#commentstring#table['htmldjango'] = g:context#commentstring#table['html']
 
 " Auto-commands
 augroup mt_whitespace
@@ -208,6 +217,9 @@ augroup mt_colouring
     autocmd BufNewFile,BufRead *.twig set filetype=django
     autocmd FileType django set autoindent&
     autocmd FileType django set indentexpr&
+
+    " Highlight dockerfiles with non-default names
+    autocmd BufNewFile,BufRead Dockerfile* set filetype=dockerfile
 augroup END
 
 
@@ -543,6 +555,11 @@ inoremap { {}<left>
 inoremap <leader><lt> <lt>><lt>/><left><left><left><left>
 inoremap <leader>> <lt>><left>
 
+" Mappings for django template tags.
+inoremap <leader>{ {{<space><space>}}<left><left><left>
+inoremap <leader>% {%<space><space>%}<left><left><left>
+vnoremap <leader>t s{%<space>translate<space>""<space>%}<left><left><left><left><c-r>"<esc>
+
 " Gracefully handle over-writing of auto-closed pairs.
 inoremap <expr> ) ClosePair(')')
 inoremap <expr> ] ClosePair(']')
@@ -556,7 +573,7 @@ inoremap <expr> ' CloseQuote("'")
 " Non-auto-closing mappings for convenience.
 inoremap <leader>( (
 inoremap <leader>[ [
-inoremap <leader>{ {
+" inoremap <leader>{ {
 inoremap <leader>" "
 inoremap <leader>' '
 
@@ -569,8 +586,6 @@ vnoremap <leader>' s''<left><c-r>"<esc>
 vnoremap <leader>` s``<left><c-r>"<esc>
 vnoremap <leader><lt> s<lt>></><left><left><left><c-r>"<esc>`[<left>i
 vnoremap <leader>> s<lt>><left><c-r>"<esc>
-
-vnoremap <leader>h s{% header_link "" %}<left><left><left><left><c-r>"<esc>
 
 " Delete auto-pairs as quickly as you can create them.
 inoremap <expr> <bs> DeleteEmptyPair()
