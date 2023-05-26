@@ -104,9 +104,10 @@ __prompt() {
 # Aliases
 # ==============================================================================
 
-# if [[ -r "$(brew --prefix)/etc/bash_completion" ]]; then
-#     . "$(brew --prefix)/etc/bash_completion"
-# fi
+if [[ -r "$(brew --prefix)/etc/bash_completion" ]]; then
+    # . "$(brew --prefix)/etc/bash_completion"
+    . "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh"
+fi
 
 if [[ $(uname) == 'Darwin' ]]; then
     alias 'ls'='ls -hpAG'
