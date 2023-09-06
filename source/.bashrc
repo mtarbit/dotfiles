@@ -191,8 +191,37 @@ listening() {
 }
 
 generate-pass() {
-    length=${1:-16}
-    LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w${length} | head -n1
+    # See: https://unix.stackexchange.com/a/715405
+    local getopt_dir getopt_tmp special=0
+
+    getopt_dir="$(brew --prefix)/opt/gnu-getopt/bin/"
+    getopt_tmp=$("${getopt_dir}/getopt" -o 's' --long 'special' -n "$FUNCNAME" -- "$@")
+
+    [ $? -ne 0 ] && return 1
+
+    eval set -- "$getopt_tmp"
+
+    while true; do
+        case "$1" in
+            '-s'|'--special')
+                special=1
+                shift
+                ;;
+            '--')
+                shift
+                break
+                ;;
+        esac
+    done
+
+    length=${1:-24}
+    tr_str='[:alnum:]'
+
+    if [ $special -ne 0 ]; then
+        tr_str="${tr_str}[:punct:]"
+    fi
+
+    LC_ALL=C tr -cd "${tr_str}" < /dev/urandom | fold -w${length} | head -n1
 }
 
 generate-md5s() {
