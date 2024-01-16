@@ -53,15 +53,32 @@ local showPassword = function(output)
     local html = '<style>' .. readFile('assets/pass/style.css') .. '</style>'
               .. '<div class="markdown-body">' .. hs.doc.markdown.convert(output) .. '</div>'
 
+    local userContent = hs.webview.usercontent.new('openBrowser')
+
+    userContent:setCallback(function(message)
+        hs.execute("open '" .. message.body .. "'")
+    end)
+
+    userContent:injectScript({injectionTime = 'documentEnd', source = [[
+        document.addEventListener("click", function(event){
+            var link = event.target.closest("a");
+            if (link && link.href) {
+                webkit.messageHandlers.openBrowser.postMessage(link.href);
+                event.preventDefault();
+            }
+        })
+    ]]})
+
     if webview ~= nil then
         webview:delete()
         webview = nil
     end
 
     focused = hs.window.focusedWindow()
-    webview = hs.webview.newBrowser(rect)
+    webview = hs.webview.newBrowser(rect, {}, userContent)
     webview:shadow(true)
     webview:closeOnEscape(true)
+
     -- webview:windowCallback(function(action, webview)
     --     if action == 'closing' then
     --         focused:focus()
@@ -70,9 +87,11 @@ local showPassword = function(output)
 
     webview:html(html)
     webview:show()
+
     -- webview:hswindow():raise()
     -- webview:hswindow():focus()
     webview:bringToFront()
+
 end
 
 local chooserSelect = function(mode, choice)
