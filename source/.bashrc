@@ -225,7 +225,7 @@ generate-pass() {
     LC_ALL=C tr -cd "${tr_str}" < /dev/urandom | fold -w${length} | head -n1
 }
 
-generate-md5s() {
+generate-hashes() {
     number=${1:-1}
     length=${2:-32}
     LC_ALL=C tr -cd '[:xdigit:]' < /dev/urandom | tr '[:upper:]' '[:lower:]' | fold -w${length} | head -n${number}
@@ -240,6 +240,11 @@ generate-ips() {
 
 fix-sound() {
     sudo pkill -f coreaudio[a-z]
+}
+
+fix-tab() {
+    pkill -fi hammerspoon 2> /dev/null
+    hs -A -c ''
 }
 
 man-opt() {
