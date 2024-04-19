@@ -74,27 +74,12 @@ lockedWatcher:start()
 function setBluetoothState(value)
     hs.notify.show('Setting bluetooth state', '', (value and "On" or "Off"))
 
-    return runJavaScript([[
+    return setSystemSetting("Bluetooth", [[
 
-        var settings = Application("System Settings");
-
-        settings.activate();
-        settings.panes.byName("Bluetooth").reveal();
-
-        var settingsUI = Application("System Events").processes.byName("System Settings").windows.at(0);
-        var bluetoothUI = settingsUI.groups.at(0).splitterGroups.at(0).groups.at(1).groups.at(0);
-
-        delay(1.0);
-
-        var checkbox = bluetoothUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Bluetooth");
-
+        var checkbox = settingsUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Bluetooth");
         if (checkbox.value() != {{ value }}) {
             checkbox.click();
         }
-
-        delay(1.0);
-
-        settings.quit();
 
     ]], {value=(value and 1 or 0)})
 end
@@ -102,6 +87,19 @@ end
 function setScrollDirection(value)
     hs.notify.show('Setting scroll direction', '', (value and "Trackpad" or "Mouse"))
 
+    return setSystemSetting("Trackpad", [[
+
+        settingsUI.tabGroups.at(0).radioButtons.at(1).click();
+
+        var checkbox = settingsUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Natural scrolling");
+        if (checkbox.value() != {{ value }}) {
+            checkbox.click();
+        }
+
+    ]], {value=(value and 1 or 0)})
+end
+
+function setSystemSetting(label, script, table)
     return runJavaScript([[
 
         // To find the properties and paths needed for UI elements
@@ -116,26 +114,20 @@ function setScrollDirection(value)
         var settings = Application("System Settings");
 
         settings.activate();
-        settings.panes.byName("Trackpad").reveal();
+        settings.panes.byName("{{ label }}").reveal();
 
-        var settingsUI = Application("System Events").processes.byName("System Settings").windows.at(0);
-        var trackpadUI = settingsUI.groups.at(0).splitterGroups.at(0).groups.at(1).groups.at(0);
+        var settingsWindowUI = Application("System Events").processes.byName("System Settings").windows.at(0);
+        var settingsUI = settingsWindowUI.groups.at(0).splitterGroups.at(0).groups.at(1).groups.at(0);
 
         delay(1.0);
 
-        trackpadUI.tabGroups.at(0).radioButtons.at(1).click();
-
-        var checkbox = trackpadUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Natural scrolling");
-
-        if (checkbox.value() != {{ value }}) {
-            checkbox.click();
-        }
+        {{ script }}
 
         delay(1.0);
 
         settings.quit();
 
-    ]], {value=(value and 1 or 0)})
+    ]], {label=label, script=template(script, table)})
 end
 
 function setDockAutoHiding(value)
