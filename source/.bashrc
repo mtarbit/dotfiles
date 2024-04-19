@@ -107,6 +107,7 @@ __prompt() {
 if [[ -r "$(brew --prefix)/etc/bash_completion" ]]; then
     # . "$(brew --prefix)/etc/bash_completion"
     . "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh"
+    . "$(brew --prefix)/etc/bash_completion.d/git-completion.bash"
 fi
 
 if [[ $(uname) == 'Darwin' ]]; then

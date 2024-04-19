@@ -16,6 +16,32 @@
 
 
 # ==============================================================================
+# Homebrew config
+# ==============================================================================
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# A probably temporary alias and fallback dynamic library path for
+# use while migrating from x86_64 brew to arm64 brew.
+alias 'ibrew'='/usr/local/bin/brew'
+
+# Note: This was specifically added because some pypi packages, like filemagic,
+# use `ctypes.util.find_library()` to get a .dylib path, and it was returning
+# the x86_64 `/usr/local/lib` library path instead of the arm path below.
+#
+# (Doesn't work though because macOS's new SIP protections strip any DYLD_* env
+# vars when spawning a child process)
+# export DYLD_FALLBACK_LIBRARY_PATH='/opt/homebrew/lib'
+#
+# This issue is discussed here:
+# - https://github.com/orgs/Homebrew/discussions/3424#discussioncomment-3131452
+# - https://github.com/pyenv/pyenv/issues/2339
+#
+# The last comment proposes a hacky fix of symlinking /opt/homebrew/lib to ~/lib
+# which is what I've done for now.
+
+
+# ==============================================================================
 # Aliases and functions
 # ==============================================================================
 
@@ -55,7 +81,7 @@ export EDITOR='vim'
 # Other config
 # ==============================================================================
 
-# Don't timeout `pass -c` so quickly (see /usr/local/bin/pass).
+# Don't timeout `pass -c` so quickly (see `$(brew --prefix)/bin/pass`).
 # This timeout matches the cache-ttl in `.gnupg/gpg-agent.conf`.
 export PASSWORD_STORE_CLIP_TIME=7200
 
