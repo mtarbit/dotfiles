@@ -1,5 +1,6 @@
 hs.window.animationDuration = 0
 
+-- If this stops working, try restarting the app whose windows aren't resizing correctly.
 function resizeWindowTo(unitrect) hs.window.focusedWindow():moveToUnit(unitrect) end
 
 function resizeWindowL50() resizeWindowTo(hs.layout.left50) end

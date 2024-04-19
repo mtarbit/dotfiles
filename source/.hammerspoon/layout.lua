@@ -2,9 +2,11 @@
 -- https://www.hammerspoon.org/docs/hs.screen.html#find
 
 -- SCREEN_MACBOOK = 'Built%-in Retina Display'
-SCREEN_MACBOOK = '5DA908AD-E526-82CA-BA70-B36377A262C4'
+-- SCREEN_MACBOOK = '5DA908AD-E526-82CA-BA70-B36377A262C4'
+SCREEN_MACBOOK = '37D8832A-2D66-02CA-B9F7-8F30A301B230'
 -- SCREEN_DESKTOP = 'LG UltraFine'
-SCREEN_DESKTOP = '2C89607A-254C-BFC7-958B-A07D111936FA'
+-- SCREEN_DESKTOP = '2C89607A-254C-BFC7-958B-A07D111936FA'
+SCREEN_DESKTOP = '9D6E5FCE-F4D3-4088-87D6-3221B877B953'
 
 -- Using bundle IDs rather than app names here because iTerm2 doesn't
 -- respond to the name that it returns via app:name() for some reason.
@@ -37,10 +39,13 @@ APP_LAYOUT_LAPTOP = {
 
 function screenWatcherFn()
     -- Switch setup when number of screens changes.
-    local screens = hs.screen.allScreens()
-    if #screens ~= #currentScreens then
-        currentScreens = screens
-        if #screens == 1 then
+    if screenIsLocked then
+        return
+    end
+    local latestScreens = #hs.screen.allScreens()
+    if currentScreens ~= latestScreens then
+        currentScreens = latestScreens
+        if currentScreens == 1 then
             switchSetup(APP_LAYOUT_LAPTOP)
         else
             switchSetup(APP_LAYOUT_DESKTOP)
@@ -48,48 +53,50 @@ function screenWatcherFn()
     end
 end
 
-currentScreens = hs.screen.allScreens()
+function lockedWatcherFn(eventType)
+    if eventType == hs.caffeinate.watcher.screensDidLock then
+        screenIsLocked = true
+    elseif eventType == hs.caffeinate.watcher.screensDidUnlock then
+        screenIsLocked = false
+        screenWatcherFn()
+    end
+end
+
+screenIsLocked = nil
+currentScreens = #hs.screen.allScreens()
+
 screenWatcher = hs.screen.watcher.new(screenWatcherFn)
 screenWatcher:start()
+
+lockedWatcher = hs.caffeinate.watcher.new(lockedWatcherFn)
+lockedWatcher:start()
 
 function setBluetoothState(value)
     hs.notify.show('Setting bluetooth state', '', (value and "On" or "Off"))
 
-    local action
-
-    if value then
-        action = 'Turn Bluetooth On'
-    else
-        action = 'Turn Bluetooth Off'
-    end
-
     return runJavaScript([[
 
-        var systemPrefs = Application("System Preferences");
+        var settings = Application("System Settings");
 
-        systemPrefs.activate();
-        systemPrefs.panes.byName("Bluetooth").reveal();
+        settings.activate();
+        settings.panes.byName("Bluetooth").reveal();
 
-        var systemPrefsUI = Application("System Events").processes.byName("System Preferences");
-        var bluetoothUI = systemPrefsUI.windows.byName("Bluetooth");
-        var button;
-
-        delay(2.5);
-
-        try {
-            button = bluetoothUI.buttons.byName("{{ action }}");
-            button.click();
-        } catch (e) {
-            if (e.message != "Can't get object.") {
-                throw e;
-            }
-        }
-
-        systemPrefs.quit();
+        var settingsUI = Application("System Events").processes.byName("System Settings").windows.at(0);
+        var bluetoothUI = settingsUI.groups.at(0).splitterGroups.at(0).groups.at(1).groups.at(0);
 
         delay(1.0);
 
-    ]], {action=action})
+        var checkbox = bluetoothUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Bluetooth");
+
+        if (checkbox.value() != {{ value }}) {
+            checkbox.click();
+        }
+
+        delay(1.0);
+
+        settings.quit();
+
+    ]], {value=(value and 1 or 0)})
 end
 
 function setScrollDirection(value)
@@ -103,28 +110,30 @@ function setScrollDirection(value)
         // `.properties()` and `.entireContents()`. You can see
         // output from calls to console.log in the "messages" tab.
 
-        // Also try `osascript -l Javascript -i`. See:
+        // Also try `osascript -l JavaScript -i`. See:
         // https://www.macstories.net/tutorials/getting-started-with-javascript-for-automation-on-yosemite/
 
-        var systemPrefs = Application("System Preferences");
+        var settings = Application("System Settings");
 
-        systemPrefs.activate();
-        systemPrefs.panes.byName("Trackpad").reveal();
+        settings.activate();
+        settings.panes.byName("Trackpad").reveal();
 
-        var systemPrefsUI = Application("System Events").processes.byName("System Preferences");
-        var trackpadUI = systemPrefsUI.windows.byName("Trackpad").tabGroups.at(0);
-
-        delay(2.5);
-
-        trackpadUI.radioButtons.byName("Scroll & Zoom").click();
-
-        if (trackpadUI.checkboxes.at(0).value() != {{ value }}) {
-            trackpadUI.checkboxes.at(0).click();
-        }
-
-        systemPrefs.quit();
+        var settingsUI = Application("System Events").processes.byName("System Settings").windows.at(0);
+        var trackpadUI = settingsUI.groups.at(0).splitterGroups.at(0).groups.at(1).groups.at(0);
 
         delay(1.0);
+
+        trackpadUI.tabGroups.at(0).radioButtons.at(1).click();
+
+        var checkbox = trackpadUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Natural scrolling");
+
+        if (checkbox.value() != {{ value }}) {
+            checkbox.click();
+        }
+
+        delay(1.0);
+
+        settings.quit();
 
     ]], {value=(value and 1 or 0)})
 end
