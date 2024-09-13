@@ -8,6 +8,7 @@ SCREEN_MACBOOK = '37D8832A-2D66-02CA-B9F7-8F30A301B230'
 -- SCREEN_DESKTOP = '2C89607A-254C-BFC7-958B-A07D111936FA'
 SCREEN_DESKTOP = '9D6E5FCE-F4D3-4088-87D6-3221B877B953'
 
+
 -- Using bundle IDs rather than app names here because iTerm2 doesn't
 -- respond to the name that it returns via app:name() for some reason.
 
@@ -18,8 +19,19 @@ APP_ID_CHROME   = 'com.google.Chrome'
 APP_ID_MAIL     = 'com.apple.mail'
 APP_ID_SLACK    = 'com.tinyspeck.slackmacgap'
 APP_ID_SPOTIFY  = 'com.spotify.client'
+APP_ID_DOCKER   = 'com.docker.docker'
+APP_ID_DOCKER_DESKTOP = 'com.electron.dockerdesktop'
+APP_ID_TRANSMISSION = 'org.m0k.transmission'
+APP_ID_JELLYFIN = 'Jellyfin.Server'
 
-APP_DEFAULTS = {APP_ID_KITTY, APP_ID_FIREFOX, APP_ID_MAIL, APP_ID_SLACK}
+-- Note that apps should be listed in the order we want them to be opened
+-- (e.g. because they may depend on each other or for stacking purposes).
+
+APP_GROUP_DEFAULT = {APP_ID_SLACK, APP_ID_MAIL, APP_ID_FIREFOX, APP_ID_KITTY}
+APP_GROUP_STORAGE = {APP_ID_DOCKER, APP_ID_DOCKER_DESKTOP, APP_ID_JELLYFIN, APP_ID_TRANSMISSION}
+
+APP_GROUP_STORAGE_ONLY_ON_QUIT = {APP_ID_DOCKER_DESKTOP}
+APP_GROUP_STORAGE_ONLY_DESKTOP = {APP_ID_JELLYFIN, APP_ID_TRANSMISSION}
 
 APP_LAYOUT_DESKTOP = {
     {APP_ID_KITTY,   nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
@@ -36,6 +48,15 @@ APP_LAYOUT_LAPTOP = {
     {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
     {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
 }
+
+
+-- Volume paths as seen in `hs.fs.volume.allVolumes()`.
+
+VOLUME_STORAGE = "/Volumes/File Storage"
+VOLUME_BACKUPS = "/Volumes/Time Machine Backups"
+
+VOLUME_PATHS = {VOLUME_STORAGE, VOLUME_BACKUPS}
+
 
 function screenWatcherFn()
     -- Switch setup when number of screens changes.
@@ -62,6 +83,20 @@ function lockedWatcherFn(eventType)
     end
 end
 
+function volumeWatcherFn(eventType, volume)
+    -- TODO: Toggle disabled state for "eject external HDD" option
+    -- in menubar when VOLUME_STORAGE is mounted/unmounted.
+    if volume["path"] == VOLUME_STORAGE then
+        if eventType == hs.fs.volume.didMount then
+            launchApps(APP_GROUP_STORAGE, false)
+        -- elseif eventType == hs.fs.volume.willUnmount then
+            -- print("Volume willUnmount:")
+            -- print(pprint(volume))
+            -- quitApps(APP_GROUP_STORAGE)
+        end
+    end
+end
+
 screenIsLocked = nil
 currentScreens = #hs.screen.allScreens()
 
@@ -70,6 +105,9 @@ screenWatcher:start()
 
 lockedWatcher = hs.caffeinate.watcher.new(lockedWatcherFn)
 lockedWatcher:start()
+
+volumeWatcher = hs.fs.volume.new(volumeWatcherFn)
+volumeWatcher:start()
 
 function setBluetoothState(value)
     hs.notify.show('Setting bluetooth state', '', (value and "On" or "Off"))
@@ -190,18 +228,50 @@ function switchSetup(layout)
     setScrollDirection(layout == APP_LAYOUT_LAPTOP)
 end
 
-function launchApps()
-    -- Iterate through apps in reverse order, opening them and waiting for each one
-    -- to open so that the apps at the top of the layout list end up at the front.
+function launchApps(appGroup, shouldWait)
+    for i, bundleID in pairs(appGroup) do
+        local shouldOpen = true
 
-    for i = #APP_DEFAULTS, 1, -1 do
-        local id = APP_DEFAULTS[i]
-        hs.application.open(id, 10, true)
+        if table.contains(APP_GROUP_STORAGE_ONLY_ON_QUIT, bundleID) then
+            shouldOpen = false
+        end
+
+        if table.contains(APP_GROUP_STORAGE_ONLY_DESKTOP, bundleID) and currentScreens > 1 then
+            shouldOpen = false
+        end
+
+        if shouldOpen then
+            if shouldWait then
+                hs.application.open(bundleID, 10, true)
+            else
+                hs.application.open(bundleID)
+            end
+        end
     end
 
+    if appGroup == APP_GROUP_DEFAULT then
+        arrangeApps()
+    end
+end
+
+function quitApps(appGroup)
+    for i, bundleID in pairs(appGroup) do
+        local app = hs.application.get(bundleID)
+        if app then app:kill() end
+    end
+end
+
+function arrangeApps()
     if #hs.screen.allScreens() == 1 then
         hs.layout.apply(APP_LAYOUT_LAPTOP)
     else
         hs.layout.apply(APP_LAYOUT_DESKTOP)
+    end
+end
+
+function ejectExternalHDD()
+    quitApps(APP_GROUP_STORAGE)
+    for i, volumePath in pairs(VOLUME_PATHS) do
+        hs.fs.volume.eject(volumePath)
     end
 end

@@ -23,7 +23,9 @@ menuBarMenu = {
   {title='Break reminders', fn=toggleBreaks, checked=false},
   {title='Caffeinate', fn=toggleCaffeinate, checked=false},
   {title='-'}, -- separator
-  {title='Launch default apps', fn=launchApps},
+  {title='Eject external HDD', fn=function() ejectExternalHDD() end},
+  {title='Launch apps: Default', fn=function() launchApps(APP_GROUP_DEFAULT) end},
+  {title='Launch apps: Storage', fn=function() launchApps(APP_GROUP_STORAGE, false) end},
   {title='Setup: Desktop', fn=function() switchSetup(APP_LAYOUT_DESKTOP) end},
   {title='Setup: Laptop', fn=function() switchSetup(APP_LAYOUT_LAPTOP) end},
   {title='-'}, -- separator
