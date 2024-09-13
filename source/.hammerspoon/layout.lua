@@ -91,6 +91,8 @@ function setScrollDirection(value)
 
         settingsUI.tabGroups.at(0).radioButtons.at(1).click();
 
+        delay(1.0)
+
         var checkbox = settingsUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Natural scrolling");
         if (checkbox.value() != {{ value }}) {
             checkbox.click();
@@ -123,6 +125,9 @@ function setSystemSetting(label, script, table)
 
         {{ script }}
 
+        // Allow time for checkbox toggle animation
+        // before continuing with anything else.
+
         delay(1.0);
 
         settings.quit();
@@ -141,6 +146,11 @@ function setDockAutoHiding(value)
     runJavaScript([[
         system = Application("System Events");
         system.dockPreferences.autohide = {{ value }};
+
+        // Allow time for dock show/hide animation
+        // before continuing with anything else.
+
+        delay(3.0);
     ]], {value=value})
 end
 
@@ -173,14 +183,11 @@ function switchSetup(layout)
     hs.notify.show('Switching setup', '', 'Switching to setup: ' .. layoutName)
 
     setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
-    -- Allow time for dock show/hide anim to take effect.
-    hs.timer.doAfter(3.0, function()
-        setFrameCorrectness(true)
-        hs.layout.apply(layout)
-        setFrameCorrectness(false)
-        setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
-        setScrollDirection(layout == APP_LAYOUT_LAPTOP)
-    end)
+    setFrameCorrectness(true)
+    hs.layout.apply(layout)
+    setFrameCorrectness(false)
+    setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
+    setScrollDirection(layout == APP_LAYOUT_LAPTOP)
 end
 
 function launchApps()
