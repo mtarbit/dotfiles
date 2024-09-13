@@ -260,6 +260,33 @@ man-opt() {
     man -P "less -is -p '^ +${2}'" "${1}";
 }
 
+browser() {
+    # Pipe HTML or JSON output into a web browser.
+    # See: https://gist.github.com/defunkt/318247
+    if [ -t 0 ]; then
+        if [ -n "$1" ]; then
+            open $1
+        else
+            cat <<EOF
+Usage:
+$ echo "<h1>Testing</h1>" | browser
+$ curl "http://example.com" | browser
+EOF
+        fi
+    else
+        file_path="/tmp/browser.$RANDOM.tmp"
+        cat /dev/stdin > "$file_path"
+        file_type="$(file -b "$file_path" | awk '{print tolower($1)}')"
+        if [ $file_type == "html" ] || [ $file_type == "json" ]; then
+            old_file_path="${file_path}"
+            new_file_path="${file_path%.*}.${file_type}"
+            mv "$old_file_path" "$new_file_path"
+            file_path="$new_file_path"
+        fi
+        open -a firefox "$file_path"
+    fi
+}
+
 # usr-include-path() {
 #     echo "$(xcrun --show-sdk-path)/usr/include"
 # }
