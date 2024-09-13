@@ -52,3 +52,12 @@ function pprint(obj, depth)
         return result
     end
 end
+
+function table.contains(table, match)
+    for _, value in pairs(table) do
+        if value == match then
+            return true
+        end
+    end
+    return false
+end
