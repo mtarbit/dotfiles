@@ -225,6 +225,11 @@ generate-pass() {
     LC_ALL=C tr -cd "${tr_str}" < /dev/urandom | fold -w${length} | head -n1
 }
 
+generate-digits() {
+    length=${1:-6}
+    LC_ALL=C tr -cd '[:digit:]' < /dev/urandom | fold -w${length} | head -n1
+}
+
 generate-hashes() {
     number=${1:-1}
     length=${2:-32}
