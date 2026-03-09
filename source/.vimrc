@@ -215,8 +215,8 @@ augroup mt_colouring
 
     " Highlight django template tags in html files.
     autocmd BufNewFile,BufRead *.twig set filetype=django
-    autocmd FileType django set autoindent&
-    autocmd FileType django set indentexpr&
+    autocmd FileType html,htmldjango,django set autoindent&
+    autocmd FileType html,htmldjango,django set indentexpr&
 
     " Highlight dockerfiles with non-default names
     autocmd BufNewFile,BufRead Dockerfile* set filetype=dockerfile
@@ -555,11 +555,6 @@ inoremap { {}<left>
 inoremap <leader><lt> <lt>><lt>/><left><left><left><left>
 inoremap <leader>> <lt>><left>
 
-" Mappings for django template tags.
-inoremap <leader>{ {{<space><space>}}<left><left><left>
-inoremap <leader>% {%<space><space>%}<left><left><left>
-vnoremap <leader>t s{%<space>translate<space>""<space>%}<left><left><left><left><c-r>"<esc>
-
 " Gracefully handle over-writing of auto-closed pairs.
 inoremap <expr> ) ClosePair(')')
 inoremap <expr> ] ClosePair(']')
@@ -573,7 +568,7 @@ inoremap <expr> ' CloseQuote("'")
 " Non-auto-closing mappings for convenience.
 inoremap <leader>( (
 inoremap <leader>[ [
-" inoremap <leader>{ {
+inoremap <leader>{ {
 inoremap <leader>" "
 inoremap <leader>' '
 
@@ -591,6 +586,17 @@ vnoremap <leader>> s<lt>><left><c-r>"<esc>
 inoremap <expr> <bs> DeleteEmptyPair()
 " Return inside an auto-pair snaps it open and indents.
 inoremap <expr> <cr> SplitEmptyPair()
+
+" Mappings for django template tags.
+autocmd Filetype html,htmldjango,django inoremap <buffer> <leader>{ {{<space><space>}}<left><left><left>
+autocmd Filetype html,htmldjango,django inoremap <buffer> <leader>% {%<space><space>%}<left><left><left>
+autocmd Filetype html,htmldjango,django inoremap <buffer> <leader># {#<space><space>#}<left><left><left>
+autocmd Filetype html,htmldjango,django inoremap <buffer> <leader>t {%<space>translate<space>""<space>%}<left><left><left><left>
+
+autocmd Filetype html,htmldjango,django vnoremap <buffer> <leader>{ s{{<space><space>}}<left><left><left><c-r>"<esc>
+autocmd Filetype html,htmldjango,django vnoremap <buffer> <leader>% s{%<space><space>%}<left><left><left><c-r>"<esc>
+autocmd Filetype html,htmldjango,django vnoremap <buffer> <leader># s{#<space><space>#}<left><left><left><c-r>"<esc>
+autocmd Filetype html,htmldjango,django vnoremap <buffer> <leader>t s{%<space>translate<space>""<space>%}<left><left><left><left><c-r>"<esc>
 
 augroup mt_pairs
     autocmd!
