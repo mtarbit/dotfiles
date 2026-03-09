@@ -157,7 +157,7 @@ volumeWatcher = hs.fs.volume.new(volumeWatcherFn)
 volumeWatcher:start()
 
 function setBluetoothState(value)
-    hs.notify.show('Setting bluetooth state', '', (value and "On" or "Off"))
+    hs.notify.show("Setting bluetooth state", "", (value and "On" or "Off"))
 
     return setSystemSetting("Bluetooth", [[
 
@@ -170,13 +170,13 @@ function setBluetoothState(value)
 end
 
 function setScrollDirection(value)
-    hs.notify.show('Setting scroll direction', '', (value and "Trackpad" or "Mouse"))
+    hs.notify.show("Setting scroll direction", "", (value and "Trackpad" or "Mouse"))
 
     return setSystemSetting("Trackpad", [[
 
         settingsUI.tabGroups.at(0).radioButtons.at(1).click();
 
-        delay(1.0)
+        delay(0.3)
 
         var checkbox = settingsUI.scrollAreas.at(0).groups.at(0).checkboxes.byName("Natural scrolling");
         if (checkbox.value() != {{ value }}) {
@@ -201,21 +201,26 @@ function setSystemSetting(label, script, table)
         var settings = Application("System Settings");
 
         settings.activate();
+
+        delay(0.3);
+
         settings.panes.byName("{{ label }}").reveal();
 
         var settingsWindowUI = Application("System Events").processes.byName("System Settings").windows.at(0);
         var settingsUI = settingsWindowUI.groups.at(0).splitterGroups.at(0).groups.at(1).groups.at(0);
 
-        delay(1.0);
+        delay(0.3);
 
         {{ script }}
 
         // Allow time for checkbox toggle animation
         // before continuing with anything else.
 
-        delay(1.0);
+        delay(0.3);
 
         settings.quit();
+
+        delay(0.3);
 
     ]], {label=label, script=template(script, table)})
 end
@@ -229,7 +234,7 @@ function setDockAutoHiding(value)
     -- https://macos-defaults.com/dock/autohide-time-modifier.html
     -- https://macos-defaults.com/dock/autohide-delay.html
     runJavaScript([[
-        system = Application("System Events");
+        var system = Application("System Events");
         system.dockPreferences.autohide = {{ value }};
 
         // Allow time for dock show/hide animation
