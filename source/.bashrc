@@ -225,6 +225,12 @@ generate-pass() {
     LC_ALL=C tr -cd "${tr_str}" < /dev/urandom | fold -w${length} | head -n1
 }
 
+generate-phrase() {
+    # Assumes `github.com/dolph/dictionary` has been cloned into `~/.config`
+    number=${1:-3}
+    sort -R ~/.config/dictionary/popular.txt | head -n ${number} | paste -s -d "-" -
+}
+
 generate-digits() {
     length=${1:-6}
     LC_ALL=C tr -cd '[:digit:]' < /dev/urandom | fold -w${length} | head -n1
