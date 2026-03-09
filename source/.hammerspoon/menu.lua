@@ -20,17 +20,27 @@ menuBar = hs.menubar.new()
 menuBar:setIcon('ASCII:' .. menuBarIcon)
 
 menuBarMenu = {
-  {title='Break reminders', fn=toggleBreaks, checked=false},
   {title='Caffeinate', fn=toggleCaffeinate, checked=false},
-  {title='-'}, -- separator
+  {title='Break reminders', fn=toggleBreaks, checked=false},
   {title='Eject external HDD', fn=function() ejectExternalHDD() end},
-  {title='Launch apps: Default', fn=function() launchApps(APP_GROUP_DEFAULT) end},
-  {title='Launch apps: Storage', fn=function() launchApps(APP_GROUP_STORAGE, false) end},
-  {title='Setup: Desktop', fn=function() switchSetup(APP_LAYOUT_DESKTOP) end},
-  {title='Setup: Laptop', fn=function() switchSetup(APP_LAYOUT_LAPTOP) end},
   {title='-'}, -- separator
-  {title='Hammerspoon: Reload config', fn=hs.reload},
-  {title='Hammerspoon: Open console', fn=hs.toggleConsole},
+  {title='Setup', menu={
+      {title='Desktop', fn=function() switchSetup(LAYOUT_DESKTOP) end},
+      {title='Laptop', fn=function() switchSetup(LAYOUT_LAPTOP) end},
+  }},
+  {title='Layout', menu={
+      {title='Desktop', fn=function() setAppLayout(LAYOUT_DESKTOP) end},
+      {title='Laptop', fn=function() setAppLayout(LAYOUT_LAPTOP) end},
+  }},
+  {title='Launch', menu={
+      {title='Default', fn=function() launchApps(APP_GROUP_DEFAULT, true, true) end},
+      {title='Storage', fn=function() launchApps(APP_GROUP_STORAGE, false, true) end},
+  }},
+  {title='-'}, -- separator
+  {title='Hammerspoon', menu={
+      {title='Reload config', fn=hs.reload},
+      {title='Open console', fn=hs.toggleConsole},
+  }},
 }
 
 function menuBarUpdate()

@@ -13,41 +13,78 @@ SCREEN_DESKTOP = '9D6E5FCE-F4D3-4088-87D6-3221B877B953'
 -- respond to the name that it returns via app:name() for some reason.
 
 APP_ID_KITTY    = 'net.kovidgoyal.kitty'
-APP_ID_ITERM    = 'com.googlecode.iterm2'
 APP_ID_FIREFOX  = 'org.mozilla.firefox'
-APP_ID_CHROME   = 'com.google.Chrome'
 APP_ID_MAIL     = 'com.apple.mail'
 APP_ID_SLACK    = 'com.tinyspeck.slackmacgap'
+APP_ID_WHATSAPP = 'net.whatsapp.WhatsApp'
 APP_ID_SPOTIFY  = 'com.spotify.client'
 APP_ID_DOCKER   = 'com.docker.docker'
 APP_ID_DOCKER_DESKTOP = 'com.electron.dockerdesktop'
 APP_ID_TRANSMISSION = 'org.m0k.transmission'
 APP_ID_JELLYFIN = 'Jellyfin.Server'
+APP_ID_REMINDERS = 'com.apple.reminders'
+APP_ID_CONTACTS = 'com.apple.AddressBook'
+APP_ID_KINDLE   = 'com.amazon.Lassen'
+APP_ID_FINDER   = 'com.apple.finder'
+APP_ID_PREVIEW  = 'com.apple.Preview'
+
+
+-- A base app layout table we'll use in `generateAppLayout` to generate
+-- the fussier app layout table format expected by `hs.layout.apply()`.
+
+APP_LAYOUT = {
+    {APP_ID_KITTY,        SCREEN_DESKTOP, hs.layout.maximized},
+    {APP_ID_FIREFOX,      SCREEN_DESKTOP, hs.layout.maximized},
+    {APP_ID_MAIL,         SCREEN_MACBOOK, hs.layout.maximized},
+    {APP_ID_SLACK,        SCREEN_MACBOOK, hs.layout.maximized},
+    {APP_ID_WHATSAPP,     SCREEN_MACBOOK, hs.layout.right50},
+    {APP_ID_SPOTIFY,      SCREEN_MACBOOK, hs.layout.maximized},
+    {APP_ID_TRANSMISSION, SCREEN_MACBOOK, hs.layout.left50},
+    {APP_ID_REMINDERS,    SCREEN_MACBOOK, hs.layout.left50},
+    {APP_ID_CONTACTS,     SCREEN_MACBOOK, hs.layout.left50},
+    {APP_ID_KINDLE,       SCREEN_DESKTOP, hs.layout.maximized},
+    {APP_ID_FINDER,       SCREEN_DESKTOP, hs.layout.right50},
+    {APP_ID_PREVIEW,      SCREEN_DESKTOP, hs.layout.maximized},
+}
+
 
 -- Note that apps should be listed in the order we want them to be opened
 -- (e.g. because they may depend on each other or for stacking purposes).
 
-APP_GROUP_DEFAULT = {APP_ID_SLACK, APP_ID_MAIL, APP_ID_FIREFOX, APP_ID_KITTY}
-APP_GROUP_STORAGE = {APP_ID_DOCKER, APP_ID_DOCKER_DESKTOP, APP_ID_JELLYFIN, APP_ID_TRANSMISSION}
+APP_GROUP_DEFAULT = {APP_ID_SLACK, APP_ID_MAIL, APP_ID_WHATSAPP, APP_ID_FIREFOX, APP_ID_KITTY, APP_ID_DOCKER, APP_ID_DOCKER_DESKTOP}
+APP_GROUP_STORAGE = {APP_ID_JELLYFIN, APP_ID_TRANSMISSION}
 
 APP_GROUP_STORAGE_ONLY_ON_QUIT = {APP_ID_DOCKER_DESKTOP}
 APP_GROUP_STORAGE_ONLY_DESKTOP = {APP_ID_JELLYFIN, APP_ID_TRANSMISSION}
 
-APP_LAYOUT_DESKTOP = {
-    {APP_ID_KITTY,   nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_FIREFOX, nil, SCREEN_DESKTOP, hs.layout.maximized, nil, nil},
-    {APP_ID_MAIL,    nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-}
 
-APP_LAYOUT_LAPTOP = {
-    {APP_ID_KITTY,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_FIREFOX, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_MAIL,    nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_SLACK,   nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-    {APP_ID_SPOTIFY, nil, SCREEN_MACBOOK, hs.layout.maximized, nil, nil},
-}
+-- Just some constants to avoid passing "magic strings" around.
+
+LAYOUT_DESKTOP = 'desktop'
+LAYOUT_LAPTOP = 'laptop'
+
+
+function generateAppLayout(layoutName)
+    -- Get app layout table for passing to `hs.layout.apply()`:
+    -- https://www.hammerspoon.org/docs/hs.layout.html#apply
+    local layout = {}
+
+    for index, table in ipairs(APP_LAYOUT) do
+        bundleID = table[1]
+        screenUUID = table[2]
+        unitRectFn = table[3]
+
+        if layoutName == LAYOUT_LAPTOP then
+            -- If the external monitor isn't available then all apps
+            -- will be placed on the built-in laptop screen instead.
+            screenUUID = SCREEN_MACBOOK
+        end
+
+        layout[index] = {bundleID, nil, screenUUID, unitRectFn, nil, nil}
+    end
+
+    return layout
+end
 
 
 -- Volume paths as seen in `hs.fs.volume.allVolumes()`.
@@ -67,9 +104,9 @@ function screenWatcherFn()
     if currentScreens ~= latestScreens then
         currentScreens = latestScreens
         if currentScreens == 1 then
-            switchSetup(APP_LAYOUT_LAPTOP)
+            switchSetup(LAYOUT_LAPTOP)
         else
-            switchSetup(APP_LAYOUT_DESKTOP)
+            switchSetup(LAYOUT_DESKTOP)
         end
     end
 end
@@ -208,35 +245,38 @@ function setFrameCorrectness(value)
     hs.window.setFrameCorrectness = value
 end
 
-function switchSetup(layout)
-    local layoutName
-
-    if layout == APP_LAYOUT_LAPTOP then
-        layoutName = 'laptop'
-    else
-        layoutName = 'desktop'
+function setAppLayout(layoutName)
+    if layoutName == nil then
+        if #hs.screen.allScreens() == 1 then
+            layoutName = LAYOUT_LAPTOP
+        else
+            layoutName = LAYOUT_DESKTOP
+        end
     end
 
-    -- Try to figure out why dock sometimes becomes hidden while in desktop mode.
-    hs.notify.show('Switching setup', '', 'Switching to setup: ' .. layoutName)
-
-    setDockAutoHiding(layout == APP_LAYOUT_LAPTOP)
     setFrameCorrectness(true)
-    hs.layout.apply(layout)
+    hs.layout.apply(generateAppLayout(layoutName))
     setFrameCorrectness(false)
-    setBluetoothState(layout ~= APP_LAYOUT_LAPTOP)
-    setScrollDirection(layout == APP_LAYOUT_LAPTOP)
 end
 
-function launchApps(appGroup, shouldWait)
-    for i, bundleID in pairs(appGroup) do
+function switchSetup(layoutName)
+    hs.notify.show("Switching setup", "", "Switching to setup: " .. layoutName)
+
+    setDockAutoHiding(layoutName == LAYOUT_LAPTOP)
+    setBluetoothState(layoutName == LAYOUT_DESKTOP)
+    setScrollDirection(layoutName == LAYOUT_LAPTOP)
+    setAppLayout(layoutName)
+end
+
+function launchApps(appGroup, shouldWait, shouldLayout)
+    for i, bundleID in ipairs(appGroup) do
         local shouldOpen = true
 
         if table.contains(APP_GROUP_STORAGE_ONLY_ON_QUIT, bundleID) then
             shouldOpen = false
         end
 
-        if table.contains(APP_GROUP_STORAGE_ONLY_DESKTOP, bundleID) and currentScreens > 1 then
+        if table.contains(APP_GROUP_STORAGE_ONLY_DESKTOP, bundleID) and currentScreens == 1 then
             shouldOpen = false
         end
 
@@ -249,8 +289,8 @@ function launchApps(appGroup, shouldWait)
         end
     end
 
-    if appGroup == APP_GROUP_DEFAULT then
-        arrangeApps()
+    if shouldLayout then
+        setAppLayout()
     end
 end
 
@@ -258,14 +298,6 @@ function quitApps(appGroup)
     for i, bundleID in pairs(appGroup) do
         local app = hs.application.get(bundleID)
         if app then app:kill() end
-    end
-end
-
-function arrangeApps()
-    if #hs.screen.allScreens() == 1 then
-        hs.layout.apply(APP_LAYOUT_LAPTOP)
-    else
-        hs.layout.apply(APP_LAYOUT_DESKTOP)
     end
 end
 
