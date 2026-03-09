@@ -260,10 +260,10 @@ fix-tab() {
 
 man-opt() {
     # Open the man page for a command and jump to a particular option.
-    # Note that `less -is` is default man pager according to `man man`.
+    # Note that the default pager is `less -s` according to `man man`.
     # Use: `man-opt <command> <option>`
     # e.g: `man-opt tar -t`
-    man -P "less -is -p '^ +${2}'" "${1}";
+    man -P "less -sR -p '^ +${2}'" "${1}";
 }
 
 browser() {
