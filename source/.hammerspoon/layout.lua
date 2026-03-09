@@ -117,19 +117,29 @@ function lockedWatcherFn(eventType)
     elseif eventType == hs.caffeinate.watcher.screensDidUnlock then
         screenIsLocked = false
         screenWatcherFn()
+        -- volumeWatcherFn()
     end
 end
 
 function volumeWatcherFn(eventType, volume)
-    -- TODO: Toggle disabled state for "eject external HDD" option
-    -- in menubar when VOLUME_STORAGE is mounted/unmounted.
-    if volume["path"] == VOLUME_STORAGE then
+    -- TODO: Launching apps doesn't seem to work when screen is locked
+    -- so need to do something like this, but then we won't have the
+    -- eventType or volume info available when lockedWatcherFn calls
+    -- volumeWatcherFn later.
+    -- if screenIsLocked then
+    --     return
+    -- end
+    local volumePath = volume.path
+    if table.contains(VOLUME_PATHS, volumePath) then
         if eventType == hs.fs.volume.didMount then
-            launchApps(APP_GROUP_STORAGE, false)
-        -- elseif eventType == hs.fs.volume.willUnmount then
-            -- print("Volume willUnmount:")
-            -- print(pprint(volume))
-            -- quitApps(APP_GROUP_STORAGE)
+            hs.notify.show("Mounted volume", "", volumePath)
+            if volumePath == VOLUME_STORAGE then
+                launchApps(APP_GROUP_STORAGE, false, false)
+            end
+            -- TODO: Toggle disabled state for "eject external HDD" option
+        elseif eventType == hs.fs.volume.didUnmount then
+            hs.notify.show("Unmounted volume", "", volumePath)
+            -- TODO: Toggle enabled state for "eject external HDD" option
         end
     end
 end
@@ -302,6 +312,7 @@ function quitApps(appGroup)
 end
 
 function ejectExternalHDD()
+    hs.notify.show("Ejecting external HDD", "", "")
     quitApps(APP_GROUP_STORAGE)
     for i, volumePath in pairs(VOLUME_PATHS) do
         hs.fs.volume.eject(volumePath)
