@@ -346,18 +346,54 @@ EOF
 # Project layouts (for Kitty)
 # ==============================================================================
 
-PROJECT_DIR=~/.config/kitty/projects
-PROJECT_EXT='.sh'
+PROJECT_DIR_KITTY=~/.config/kitty/projects
+PROJECT_EXT_KITTY='.sh'
+
+project-kitty() {
+    path="${PROJECT_DIR_KITTY}/${1}${PROJECT_EXT_KITTY}"
+    if [ -z "$1" ]; then
+        echo "Project name not specified."
+    elif [ ! -f "$path" ]; then
+        echo "Project file not found at:"
+        echo "$path"
+    else
+        source "$path"
+    fi
+}
+
+_project_kitty_complete() {
+    # https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html
+    # https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
+    # https://www.gnu.org/software/bash/manual/html_node/A-Programmable-Completion-Example.html
+    local current="$2"
+    compopt -o nospace
+    for project_file_path in $(compgen -f -- "${PROJECT_DIR_KITTY}/${current}")
+    do
+        project_file=$(basename "$project_file_path")
+        project_name="${project_file%$PROJECT_EXT_KITTY}"
+        COMPREPLY+=("$project_name")
+    done
+}
+
+complete -F _project_kitty_complete project-kitty
+
+
+# ==============================================================================
+# Project layouts (for Ghostty)
+# ==============================================================================
+
+PROJECT_DIR=~/.config/ghostty/projects
+PROJECT_EXT='.applescript'
 
 project() {
     path="${PROJECT_DIR}/${1}${PROJECT_EXT}"
     if [ -z "$1" ]; then
         echo "Project name not specified."
     elif [ ! -f "$path" ]; then
-        echo "Profile file not found at:"
+        echo "Project file not found at:"
         echo "$path"
     else
-        source "$path"
+        osascript "$path"
     fi
 }
 
