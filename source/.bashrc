@@ -124,7 +124,7 @@ else
 fi
 
 alias 'll'='ls -l'
-alias 'ack'='ack --color-filename=green --color-match=yellow --ignore-file=ext:pyc'
+alias 'ack'='ack --color-filename=green --color-match=yellow --ignore-file=ext:pyc --ignore-dir=static/dist --ignore-dir=static/build'
 alias 'tmux'='tmux -2'
 alias 'date-slug'='date +"%Y-%m-%d"'
 alias 'date-time-slug'='date +"%Y-%m-%d_%H-%M"'
