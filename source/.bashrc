@@ -219,7 +219,11 @@ generate-pass() {
     tr_str='[:alnum:]'
 
     if [ $special -ne 0 ]; then
-        tr_str="${tr_str}[:punct:]"
+        # Allow all punctuation and symbols except a handful like
+        # quotes, backticks, backslashes and hashes which could
+        # maybe cause issues copy-pasting from bash to markdown.
+        # tr_str="${tr_str}[:punct:]"
+        tr_str="${tr_str}[.,;:!?%&@$^~=_(){}<>\[\]|/*+\-]"
     fi
 
     LC_ALL=C tr -cd "${tr_str}" < /dev/urandom | fold -w${length} | head -n1
