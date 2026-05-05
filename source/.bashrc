@@ -134,6 +134,7 @@ alias 'whats-my-ip'='external-ip'
 alias 'docker-exec'='docker-compose exec'
 alias 'docker-run'='docker-compose run --rm'
 alias 'docker-django'='docker-run web python manage.py'
+alias 'tree'='tree-like'
 
 # A compromise for kitty. The official line is that users should alias
 # this command to `kitty +kitten ssh <server-name>` to copy terminfo
@@ -295,6 +296,11 @@ EOF
         fi
         open -a firefox "$file_path"
     fi
+}
+
+tree-like() {
+    # Respect .gitignore, like `ack`, and colorise indentation lines.
+    command tree --gitignore "$@" | perl -pe 's/([^\x20-\x7E]+)/\e[2;36m\1\e[0m/g'
 }
 
 # usr-include-path() {
