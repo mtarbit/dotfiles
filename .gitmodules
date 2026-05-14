@@ -40,3 +40,6 @@
 [submodule "source/.vim/pack/plugins/start/rust.vim"]
 	path = source/.vim/pack/plugins/start/rust.vim
 	url = https://github.com/rust-lang/rust.vim
+[submodule "source/.vim/pack/plugins/start/readline.vim"]
+	path = source/.vim/pack/plugins/start/readline.vim
+	url = https://github.com/ryvnf/readline.vim.git
