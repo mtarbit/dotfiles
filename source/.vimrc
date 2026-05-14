@@ -1,3 +1,4 @@
+
 " Use pathogen for neater plugin management.
 " call pathogen#runtime_append_all_bundles()
 " call pathogen#helptags()
@@ -440,7 +441,7 @@ noremap <leader>= Yp^v$r=
 
 " Show syntax highlighting groups for word under cursor
 " See: http://vimcasts.org/episodes/creating-colorschemes-for-vim/
-" nnoremap <leader>syn :call SynStack()<CR>
+nnoremap <leader>syn :call SynStack()<CR>
 func! SynStack()
     if exists("*synstack")
         echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')

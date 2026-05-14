@@ -135,6 +135,7 @@ alias 'docker-exec'='docker-compose exec'
 alias 'docker-run'='docker-compose run --rm'
 alias 'docker-django'='docker-run web python manage.py'
 alias 'tree'='tree-like'
+alias 'vim'='nvim'
 
 # A compromise for kitty. The official line is that users should alias
 # this command to `kitty +kitten ssh <server-name>` to copy terminfo

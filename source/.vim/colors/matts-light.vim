@@ -18,41 +18,41 @@ endif
 
 
 " Chrome colors
-hi Normal       ctermfg=236
-hi NonText      ctermfg=189
-hi LineNr       ctermfg=189
-hi VertSplit    ctermfg=231 ctermbg=236
-hi ColorColumn              ctermbg=255
-hi LongLine                 ctermbg=255
-hi TabLine      ctermfg=254 ctermbg=236
-hi TabLineFill  ctermfg=254 ctermbg=236
-hi StatusLine   ctermfg=236 ctermbg=252
-hi StatusLineNC ctermfg=236 ctermbg=252
-hi Visual                   ctermbg=189
-hi MatchParen               ctermbg=189
-hi Search                   ctermbg=229
-hi SpecialKey   ctermfg=249 ctermbg=229
-hi WildMenu     ctermfg=236 ctermbg=148
-hi PMenu                    ctermbg=252
-hi PMenuSel     ctermfg=231 ctermbg=236
+hi Normal       ctermfg=236 ctermbg=231 guifg=#303030 guibg=#ffffff
+hi NonText      ctermfg=189 ctermbg=231 guifg=#d7d7ff guibg=#ffffff
+hi LineNr       ctermfg=189 ctermbg=231 guifg=#d7d7ff guibg=#ffffff
+hi VertSplit    ctermfg=231 ctermbg=236 guifg=#ffffff guibg=#303030
+hi ColorColumn              ctermbg=255               guibg=#eeeeee
+hi LongLine                 ctermbg=255               guibg=#eeeeee
+hi TabLine      ctermfg=254 ctermbg=236 guifg=#e4e4e4 guibg=#303030
+hi TabLineFill  ctermfg=254 ctermbg=236 guifg=#e4e4e4 guibg=#303030
+hi StatusLine   ctermfg=236 ctermbg=252 guifg=#303030 guibg=#d0d0d0
+hi StatusLineNC ctermfg=236 ctermbg=252 guifg=#303030 guibg=#d0d0d0
+hi Visual                   ctermbg=189               guibg=#d7d7ff
+hi MatchParen               ctermbg=189               guibg=#d7d7ff
+hi Search                   ctermbg=229               guibg=#ffffaf
+hi SpecialKey   ctermfg=249 ctermbg=229 guifg=#b2b2b2 guibg=#ffffaf
+hi WildMenu     ctermfg=236 ctermbg=148 guifg=#303030 guibg=#afd700
+hi PMenu                    ctermbg=252 guifg=#ffffff guibg=#303030
+hi PMenuSel     ctermfg=231 ctermbg=236 guifg=#afd700 guibg=#303030
 
 " Source colors
-hi Boolean      ctermfg=69
-hi Comment      ctermfg=249 cterm=italic
-hi Constant     ctermfg=19
-hi Directory    ctermfg=103
-hi Function     ctermfg=19
-hi Identifier   ctermfg=103
-hi Keyword      ctermfg=27
-hi Label        ctermfg=28
-hi Number       ctermfg=28
-hi Operator     ctermfg=27
-hi PreProc      ctermfg=91
-hi Special      ctermfg=103
-hi Statement    ctermfg=27
-hi String       ctermfg=126
-hi Todo         ctermfg=249 ctermbg=229 cterm=italic
-hi Type         ctermfg=28
+hi Boolean      ctermfg=69  guifg=#5f87ff
+hi Comment      ctermfg=249 guifg=#b2b2b2 cterm=italic gui=italic
+hi Constant     ctermfg=19  guifg=#0000af
+hi Directory    ctermfg=103 guifg=#8787af
+hi Function     ctermfg=19  guifg=#0000af
+hi Identifier   ctermfg=103 guifg=#8787af
+hi Keyword      ctermfg=27  guifg=#005fff
+hi Label        ctermfg=28  guifg=#008700
+hi Number       ctermfg=28  guifg=#008700
+hi Operator     ctermfg=27  guifg=#005fff
+hi PreProc      ctermfg=91  guifg=#8700af
+hi Special      ctermfg=103 guifg=#8787af
+hi Statement    ctermfg=27  guifg=#005fff gui=bold
+hi String       ctermfg=126 guifg=#af0087 gui=italic
+hi Todo         ctermfg=249 ctermbg=229 guifg=#b2b2b2 guibg=#ffffaf cterm=italic gui=italic
+hi Type         ctermfg=28  guifg=#008700
 
 " C-Specific
 " hi cStructure   ctermfg=28
