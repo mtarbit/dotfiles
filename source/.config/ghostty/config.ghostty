@@ -5,6 +5,7 @@ font-size = 13
 font-thicken = true
 font-thicken-strength = 127
 adjust-cell-height = 2
+adjust-cursor-thickness = 200%
 cursor-style-blink = true
 unfocused-split-opacity = 0.33
 unfocused-split-fill = #eeeeee
